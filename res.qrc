@@ -1,0 +1,65 @@
+<RCC>
+    <qresource prefix="/img/card">
+        <file>res/cardPicture/Geralt_Igni.png</file>
+        <file>res/cardPicture/Bekker's_Twisted_Mirror.png</file>
+        <file>res/cardPicture/Commander's_Horn.png</file>
+        <file>res/cardPicture/Immune_Boost.png</file>
+        <file>res/cardPicture/Lacerate.png</file>
+        <file>res/cardPicture/Torrential_Rain.png</file>
+        <file>res/cardPicture/Impenetrable_Fog.png</file>
+        <file>res/cardPicture/Biting_Frost.png</file>
+        <file>res/cardPicture/First_Light.png</file>
+        <file>res/cardPicture/Arachas_Behemoth.png</file>
+        <file>res/cardPicture/Vran_Warrior.png</file>
+        <file>res/cardPicture/Unseen Elder.png</file>
+        <file>res/cardPicture/Frightener.png</file>
+        <file>res/cardPicture/Caranthir.png</file>
+        <file>res/cardPicture/Nithral.png</file>
+        <file>res/cardPicture/Archgriffin.png</file>
+        <file>res/cardPicture/Crone_Brewess.png</file>
+        <file>res/cardPicture/Crone_Whispess.png</file>
+        <file>res/cardPicture/Crone_Weavess.png</file>
+        <file>res/cardPicture/Earth_Elemental.png</file>
+        <file>res/cardPicture/Woodland Spirit.png</file>
+        <file>res/cardPicture/Harpy.png</file>
+        <file>res/cardPicture/Celaeno_Harpy .png</file>
+        <file>res/cardPicture/Ge'els.png</file>
+        <file>res/cardPicture/Foglet.png</file>
+        <file>res/cardPicture/Dagon.png</file>
+        <file>res/cardPicture/Wild_Hunt_Rider.png</file>
+        <file>res/cardPicture/Roach.png</file>
+        <file>res/cardPicture/Thunderbolt_Potion.png</file>
+        <file>res/cardPicture/Arachas.png</file>
+        <file>res/cardPicture/HarpyEgg.jpeg</file>
+        <file>res/cardPicture/Lesser_Earth_Elemental.png</file>
+        <file>res/cardPicture/Rabid_Wolf.png</file>
+    </qresource>
+    <qresource prefix="/img/ui">
+        <file>res/uiPicture/passBotton.png</file>
+        <file>res/uiPicture/mySeigeBattle.png</file>
+        <file>res/uiPicture/myRemoteBattle.png</file>
+        <file>res/uiPicture/myCloseBattle.png</file>
+        <file>res/uiPicture/enmyCloseBattle.png</file>
+        <file>res/uiPicture/enmyRemoteBattle.png</file>
+        <file>res/uiPicture/enmySeigeBattle.png</file>
+        <file>res/uiPicture/unknownCard.png</file>
+        <file>res/uiPicture/graveyard.png</file>
+        <file>res/uiPicture/11_startFight.png</file>
+        <file>res/uiPicture/7_result2.png</file>
+        <file>res/uiPicture/7_result.png</file>
+        <file>res/uiPicture/5_selectDeck.png</file>
+        <file>res/uiPicture/4_modifyDecks.png</file>
+        <file>res/uiPicture/3_welcomeBack.png</file>
+        <file>res/uiPicture/2_signingIn.png</file>
+        <file>res/uiPicture/1_enter.png</file>
+        <file>res/uiPicture/6_mainWindow.png</file>
+        <file>res/uiPicture/10_quit.png</file>
+        <file>res/uiPicture/9_multiPlayer.png</file>
+        <file>res/uiPicture/8_singlePlayer.png</file>
+        <file>res/uiPicture/Blank.png</file>
+        <file>res/uiPicture/RedrawCards.png</file>
+        <file>res/uiPicture/ModifyDeck.png</file>
+        <file>res/uiPicture/ExitButton.png</file>
+        <file>res/uiPicture/SaveButton.png</file>
+    </qresource>
+</RCC>
