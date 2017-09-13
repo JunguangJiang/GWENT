@@ -26,6 +26,7 @@ public:
     int getSize()const{return static_cast<int>(m_cards.size());}
     Card *getNthCard(int i)const{return m_cards[i];}
     void clear(){m_cards.clear();}
+    void showPass(bool hasPassed){m_hasPassed=hasPassed;}//显示是否让过
 
     std::vector<int> m_cardIds;
     int m_leaderId;
@@ -52,6 +53,7 @@ private:
 
     Card* m_leader;//领袖
     bool m_isSeen;//是否看得到卡牌
+    bool m_hasPassed;//是否让过
     //bool m_hasUsedLeader;//是否已经使用了leader
 };
 

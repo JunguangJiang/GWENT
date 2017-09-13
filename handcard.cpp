@@ -15,6 +15,8 @@ HandCard::HandCard(int standPoint, GraphicsItem *parent) : m_standPoint(standPoi
     //m_hasUsedLeader=false;
     m_cardIds.clear();
     m_cards.clear();
+
+    m_hasPassed=false;
 }
 
 HandCard::~HandCard()
@@ -25,6 +27,35 @@ void HandCard::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
 {//手牌的绘制
     showAllCards(painter);
     GraphicsItem::paint(painter, option, widget);
+
+    if(m_hasPassed)
+    {
+        //brush.setStyle(Qt::SolidPattern);
+        qreal x=boundingRect().x()-0.3*boundingRect().width();
+        qreal y=boundingRect().y();
+        qreal width=boundingRect().width()*1.6;
+        qreal height=boundingRect().height();
+
+        qreal centerX=x+0.5*width;
+        qreal centerY=y+0.5*height;
+        qreal radius=width*0.5;
+        QRadialGradient radialGradient(centerX,centerY, radius, centerX, centerY);
+
+        radialGradient.setColorAt(0.0,Qt::transparent);
+        radialGradient.setColorAt(1.0,Qt::black);
+        painter->setBrush(radialGradient);
+        painter->drawRect(QRectF(x,y,width, height));
+
+        QFont font;
+        font.setPointSize(28);
+        painter->setFont(font);
+
+        QPen pen;
+        pen.setColor(Qt::yellow);
+        painter->setPen(pen);
+        painter->drawText(boundingRect(), Qt::AlignCenter,"Passed");
+        this->setZValue(10);
+    }
 }
 
 void HandCard::setLeader(Card *card)
@@ -37,6 +68,7 @@ void HandCard::setLeader(Card *card)
     m_leader=card;
     card->setLeader(true);
     card->setStatus(STATUS::HAND);
+    card->setMoveable(true);
 }
 
 void HandCard::addCard(Card* newCard)//向手牌中加入新的卡牌
@@ -63,7 +95,6 @@ void HandCard::addCard(Card* newCard)//向手牌中加入新的卡牌
     }
     m_cards.push_back(newCard);
     newCard->setStatus(STATUS::HAND);
-
 
     update();
 

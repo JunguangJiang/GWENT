@@ -31,8 +31,6 @@ public:
 signals:
     
 public slots:
-    //void on_cardReleaseAt(QPointF point, Card* card);//对卡牌释放的事件作出响应
-    //void on_cardMoveBy(QPointF point, Card* card);//对卡牌拖动的事件作出响应
     void on_cardPressed(Card *card);//对卡牌点击事件作出响应
     void on_cardHover(Card *card);//对卡牌上方有鼠标悬浮事件作出响应
     void on_battleFieldPressed(COMBAT_ROW combatRow);//对战排点击事件作出响应
@@ -44,7 +42,8 @@ private:
     int m_userId[2];//两个玩家的id
     int m_deckId[2];//两个玩家的卡组编号
     int m_userIdOfDialog;//调用game的dialog类的用户id
-    
+    int m_enemyId;//我的对手的id
+
     Player* m_player[2]; //两个玩家的信息
     int m_currentPlayingUserNumber; //当前正在发牌的玩家的编号，我方OURSIDE，敌方ENEMY
     int m_currentRound;//当前是第几局，有0,1，2三种取值
@@ -59,8 +58,6 @@ private:
     bool judgeOfGameRound();//判断小局的胜负
     bool judgeOfGame();//判断正常游戏的胜负
 
-    //void setTimerForHandCard(int seconds);//为发手牌的时间提供一个计时函数，超过seconds，则丢弃当前玩家的任意一张手牌
-
     GraphicsItem* m_bigCardImage;//卡牌的右方大图片
     text* m_cardName;//卡牌的右方名字
     text* m_cardDescription;//卡牌的右方描述
@@ -68,16 +65,19 @@ private:
     Button *m_passButton;//放弃按钮
     text* m_leftTimeShow;//显示剩余的时间
     text* m_turnShow;//显示当前轮到哪位玩家发牌
-
+    text* m_gameRoundShow;//当前是第几局
+    text* m_gameRoundResultShow;//上一局谁赢了
 
     GraphicsItem* m_background;//游戏背景
-    COMBAT_ROW getBattleFieldOfPoint(QPointF point)const;//判断point在哪个战排内，如果不在任何一个战排内则返回-1
-    void connectAll();//连接所有的信号
+    void connectCardHoverEvents();//使所有的卡牌接受悬浮信号
+
     void updateTime();//更新界面的元素（显示剩余的时间、显示当前轮到哪位玩家发牌）
+    void updateRound();//更新回合
+    void showGameRoundResult();//显示上一局谁赢了
 
     int m_lastWinner;//记录上一局赢的玩家
 
-    GraphicsItem* m_redrawBackground;//调度的背景
+    //GraphicsItem* m_redrawBackground;//调度的背景
 
 private slots:
     void on_buttonPressed();//当按下放弃按钮时响应

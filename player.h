@@ -37,7 +37,8 @@ public:
     void shuffleCards();//洗牌
     void drawInitCards();//游戏初始时抽手牌，实质上就是从牌库中抽10张牌
     void drawACardFromLibrary();//从牌库中抽一张牌
-    void dispatchCardFromTo(Card* oldCard, Card* newCard);//调度第i个选手的一张卡牌
+    //void dispatchCardFromTo(Card* oldCard, Card* newCard);//调度第i个选手的一张卡牌
+    void dispatchCard(Card* oldCard);
 
     void getTurn();         //获得出牌机会，由game类通知后获得
     void loseTurn();        //失去出牌机会
@@ -53,15 +54,17 @@ public:
     void choosePassed();    //选择让过
     void loseOneHandcardByRandom();//随机丢弃一张手牌
 
+    void turnOnTimer(){m_timerSwitch=true;}//打开定时器
+    void turnOffTimer(){m_timerSwitch=false;}//关闭定时器
 
     void hideBordersOfAllBattles();//所有的战排的边框都不显示
+    void updateAllBorders();//刷新所有的战排
 
     friend QDataStream &operator<<(QDataStream &out,const Player &player);
     friend QDataStream &operator>>(QDataStream &in , Player &player);
 
     //--------------------内部属性查询接口--------------------------
     int getTotalStrength() const;//计算玩家的总分
-    bool hasChosenPassed() const{return m_hasChosenPassed;}//是否选择了让过
     bool canMoveCard() const {return m_isOnTurn;}//此时是否可以移动手牌
     BattleField *getBattle(COMBAT_ROW combatRow)const;//根据combatrow返回相应的战排指针
     COMBAT_ROW getBattleFieldOfPoint(QPointF point) const;//返回与坐标相对应的战排
@@ -78,6 +81,15 @@ public:
 
     void setHasDealed(bool hasDeal){m_hasDealed=hasDeal;}//设置当前是否已经发牌了
     bool getHasDealed()const{return m_hasDealed;}//查询当前局是否已经发牌
+
+    void setIsDispatchingCard(bool isDispatchingCard){m_isDispatchingCard=isDispatchingCard;}//设置
+    bool getIsDispatchingCard()const{return m_isDispatchingCard;}//与查询当前是否正在调度
+
+    void setHasChosenPassed(bool hasChosenPassed){m_hasChosenPassed=hasChosenPassed;}
+    bool getHasChosenPassed() const{return m_hasChosenPassed;}//是否选择了让过
+
+    void updatePassShow();//更新是否让过的状态显示
+
 signals:
     void playerGetTurn();//每次该选手轮到出牌时，发送该信号
     void playerLoseTurn();//每次选手出牌时间用完时，发送该信号
@@ -109,20 +121,21 @@ private:
 
     int m_leftTime;//我剩余的时间
     bool m_isOnTurn;//是否轮到发牌
+    bool m_timerSwitch;//定时器的开关
+
+    bool m_isDispatchingCard;//当前是否正在调度
+    bool m_hasChosenPassed;        //是否选择了让过
+
+    //--------------------调度过程中用到的私有变量-------------
+    Card* m_dispatchingOldCard[3];//调度中丢掉的3张卡
+    int m_dispatchingCardNumber;//目前已经调度了几张卡
 
 public:
     //我的卡牌
     std::vector<Card*> m_card;
-    //Card* m_card[50];
-    //int cardSize;
+
     GraphicsItem* m_background;//游戏背景
-    Game *m_game;//游戏指针
-
-    bool m_hasChosenPassed;        //是否选择了让过
-    
-    void updateAllBorders();//刷新所有的战排
-
-    //void addCard(Card *newCard);
+    Game *m_game;//游戏指针    
 };
 
 

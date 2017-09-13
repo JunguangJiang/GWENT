@@ -60,7 +60,7 @@ public:
     //------------------------战排的流化----------------------------------
     friend QDataStream &operator<<(QDataStream &out,const BattleField &battleFeild);
     friend QDataStream &operator>>(QDataStream &in , BattleField &battleField);
-    std::vector<TransformData> m_currentCardId;//当前战排上的卡牌在卡组中的编号
+    std::vector<TransformData> m_transformData;//当前战排上的卡牌在卡组中的编号
     std::vector<Card *> m_currentCard;   //当前战排上的牌
 
 protected:

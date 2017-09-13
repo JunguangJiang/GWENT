@@ -43,23 +43,19 @@ Game::~Game()
 
 }
 
-void Game::setDeckId(int deckId1, int deckId2)//传入两个玩家选择的卡组编号
-{
-    m_deckId[0]=deckId1;
-    m_deckId[1]=deckId2;
-}
-
 void Game::playGameIn(int userId, GraphicsItem* background)//调用game的dialog的用户账号是userId，需要将game映射到background上
 {
     //根据userId，来判断敌我方
     if(m_userId[0]==userId)
     {
         m_player[OURSIDE]=new Player(m_userId[0], this);
-        m_player[ENEMY]=new Player(m_userId[1],this);        
+        m_player[ENEMY]=new Player(m_userId[1],this);
+        m_enemyId=m_userId[1];
     }else if(m_userId[1]==userId)
     {
         m_player[OURSIDE]=new Player(m_userId[1], this);
         m_player[ENEMY]=new Player(m_userId[0],this);
+        m_enemyId=m_userId[0];
     }else
     {
         return;
@@ -71,24 +67,6 @@ void Game::playGameIn(int userId, GraphicsItem* background)//调用game的dialog
     //玩家选择游戏背景
     m_player[OURSIDE]->chooseBackgroud(background,OURSIDE);
     m_player[ENEMY]->chooseBackgroud(background,ENEMY);
-
-    //玩家选择牌组，该过程同时将牌组里的牌初始化到卡库汇总
-    if(m_userId[0]==userId)
-    {
-        m_player[OURSIDE]->chooseDeck(m_deckId[0]);
-        m_player[ENEMY]->chooseDeck(m_deckId[1]);
-    }else if(m_userId[1]==userId)
-    {
-        m_player[OURSIDE]->chooseDeck(m_deckId[1]);
-        m_player[ENEMY]->chooseDeck(m_deckId[0]);
-    }else
-    {
-        return;
-    }
-
-    //连接玩家发牌结束的信号
-    connect(m_player[OURSIDE], SIGNAL(playerLoseTurn()), this, SLOT(on_playerLoseTurn()));
-    connect(m_player[ENEMY], SIGNAL(playerLoseTurn()), this, SLOT(on_playerLoseTurn()));
 
     //布置游戏背景上的
     //卡牌大图
@@ -121,11 +99,44 @@ void Game::playGameIn(int userId, GraphicsItem* background)//调用game的dialog
     m_turnShow->setText("YOUR TURN");
     m_turnShow->setCenter();
 
+    //上一轮结果的显示
+    m_gameRoundResultShow=new text(GameRoundResultShowPos, GameRoundResultShowSize, background);
+    m_gameRoundResultShow->setBackgroundColor(Qt::white);
+    m_gameRoundResultShow->setFontSize(28);
+    m_gameRoundResultShow->setCenter();
+
+    //当前是第几局
+    m_gameRoundShow=new text(GameRoundShowPos, GameRoundShowSize, background);
+    m_gameRoundShow->setFontSize(22);
+    m_gameRoundShow->setFontColor(Qt::yellow);
+
+}
+
+void Game::setDeckId(int deckId1, int deckId2)//传入两个玩家选择的卡组编号
+{
+    m_deckId[0]=deckId1;
+    m_deckId[1]=deckId2;
+
+    //玩家选择牌组，该过程同时将牌组里的牌初始化到卡库汇总
+    if(m_userId[0]==m_userIdOfDialog)
+    {
+        m_player[OURSIDE]->chooseDeck(m_deckId[0]);
+        m_player[ENEMY]->chooseDeck(m_deckId[1]);
+    }else if(m_userId[1]==m_userIdOfDialog)
+    {
+        m_player[OURSIDE]->chooseDeck(m_deckId[1]);
+        m_player[ENEMY]->chooseDeck(m_deckId[0]);
+    }else
+    {
+        return;
+    }
+
+    //连接玩家发牌结束的信号
+    connect(m_player[OURSIDE], SIGNAL(playerLoseTurn()), this, SLOT(on_playerLoseTurn()));
+    connect(m_player[ENEMY], SIGNAL(playerLoseTurn()), this, SLOT(on_playerLoseTurn()));
+
     //连接玩家卡库里的所有牌和游戏背景的交互（比如显示卡牌信息）
-    connectAll();
-
-    //m_redrawBackground=new GraphicsItem(0,0,1,1,RedrawBackgroundImagePath, background);
-
+    connectCardHoverEvents();
 }
 
 void Game::saveGame(const QString gameFile)
@@ -173,6 +184,7 @@ void Game::updateGame(const QString gameFile)
 
 void Game::startGame()//玩家开始玩游戏
 {
+    updateRound();
 
     if(m_userId[0]==m_userIdOfDialog)
     {
@@ -213,35 +225,7 @@ void Game::stopGame()//停止游戏
     qDebug()<<"stop game";
     exit(0);
 }
-/*
-void Game::on_cardReleaseAt(QPointF point, Card *card)//当卡牌释放时
-{
-    COMBAT_ROW combatRow=getBattleFieldOfPoint(point);//先求得当前点所属战排
-    if(combatRow==COMBAT_ROW::NO_COMBATROW){//如果当前点不在己方战排上
-        return;//返回
-    }
-    else//否则，根据所在战排
-    {
-        m_player[OURSIDE]->addCardFromHandToBattle(card,combatRow);//向该战排加入卡牌
-    }
-}*/
-/*
-void Game::on_cardMoveBy(QPointF point, Card *card)//当卡牌移动时
-{
-    m_player[OURSIDE]->hideBordersOfAllBattles();//先隐藏所有的战排边框
 
-    COMBAT_ROW combatRow=getBattleFieldOfPoint(point);//然后求得当前点所属战排
-    if(combatRow==COMBAT_ROW::NO_COMBATROW)//如果当前点不在己方战排上
-    {
-        return;
-    }
-    else//否则，根据所在的战排
-    {
-        m_player[OURSIDE]->getBattle(combatRow)->showBorder();//点亮该战排的边框
-    }
-
-}
-*/
 void Game::on_cardPressed(Card *card)//对卡牌点击事件作出响应
 {
 
@@ -351,8 +335,8 @@ void Game::enterANewRound()//进入新的一回合
 
 bool Game::judgeOfGameRound()//判断当前局是否分出胜负，已分出胜负则返回true
 {
-    if(m_player[0]->hasChosenPassed() &&
-            m_player[1]->hasChosenPassed())//如果两方都已pass
+    if(m_player[0]->getHasChosenPassed() &&
+            m_player[1]->getHasChosenPassed())//如果两方都已pass
     {
         if((m_player[0]->getTotalStrength()) > (m_player[1]->getTotalStrength()))
         {
@@ -411,39 +395,7 @@ bool Game::judgeOfGame()//判断整场游戏是否分出胜负,分出返回true
     }
 }
 
-COMBAT_ROW Game::getBattleFieldOfPoint(QPointF point) const
-{
-    qreal left=BattleFieldLeftTopPoint[static_cast<int>(COMBAT_ROW::CLOSE)].x();
-    qreal top=BattleFieldLeftTopPoint[static_cast<int>(COMBAT_ROW::CLOSE)].y();
-    qreal width=BattleFieldSize.width();
-    qreal height=BattleFieldSize.height();
-    qreal x=point.x();
-    qreal y=point.y();
-    if(
-            (x > left)&&
-            (x < (left+width))&&
-            (y > top)&&
-            (y < (top+3*height))
-            )
-    {
-        if(y<top+height)
-        {
-            return COMBAT_ROW::CLOSE;
-        }
-        else if(y<top+2*height)
-        {
-            return COMBAT_ROW::REMOTE;
-        }
-        else
-        {
-            return COMBAT_ROW::SIEGE;
-        }
-    }
-    return COMBAT_ROW::NO_COMBATROW;//其余情况，则不在战排内
-
-}
-
-void Game::connectAll()
+void Game::connectCardHoverEvents()
 {
     for(int i=0; i<m_player[0]->library->getSize(); i++)
     {
@@ -478,14 +430,17 @@ void Game::updateTime()
 
 }
 
-
+void Game::updateRound()
+{
+    m_gameRoundShow->setText("Round:"+std::to_string(this->m_currentRound+1));
+}
 
 
 QDataStream &operator<<(QDataStream &out, const Game &game)
 {
     //out << game.m_gameId;
 
-    out << game.m_userIdOfDialog;
+    out << game.m_enemyId;//向对方发一个包，包的开头是对方的id
 
     out << *(game.m_player[OURSIDE]) << *(game.m_player[ENEMY]);
 
@@ -501,10 +456,10 @@ QDataStream &operator>>(QDataStream &in, Game &game)
 {
    // in >> game.m_gameId;
 
-    int comeFrom;
-    in >> comeFrom;
+    int destination;
+    in >> destination;
 
-    if(game.m_userIdOfDialog==comeFrom)
+    if(game.m_userIdOfDialog==destination)//如果我方就是该包的目标
     {
         if(!game.m_player[ENEMY] || !game.m_player[OURSIDE])
         {

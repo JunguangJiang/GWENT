@@ -26,6 +26,8 @@ public:
 
 public slots:
     //void on_cardHover(Card* card);
+    void uploadGame();//上传游戏
+    void downloadGame();//下载游戏
 
 private:
     Ui::Dialog *ui;

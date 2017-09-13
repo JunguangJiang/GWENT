@@ -18,6 +18,7 @@ public:
     int getSize()const{return static_cast<int>(m_cards.size());}
     Card* getNthCard(int i) {return m_cards[i];}
     Card* drawACard();//抽一张牌，该过程已经将该牌移出牌库
+    Card* drawACardByRandom();//随机抽一张卡
     void shuffleCards();//洗牌
     Card* getCardOfType(TYPE type);//从牌组顶端抽一张type类型的卡牌，该过程已经将牌移出牌库
     Card* getCardOfName(std::string name);//根据名字找牌,该过程不将该牌移出卡牌
@@ -39,7 +40,6 @@ public slots:
 
 private:
     std::vector<Card*> m_cards;//越靠后的牌越在顶端！！！
-
     int m_standPoint;
     text *m_sizeShow;
 };

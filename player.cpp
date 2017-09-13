@@ -14,6 +14,8 @@ Player::Player(const int userId, QObject *parent) : QObject(parent), m_userId(us
 {//初始时，需确定用户的id
     m_hasChosenPassed=false;//初始时没有选择让过,
     m_isOnTurn=false;//也没有轮到发牌
+    m_isDispatchingCard=false;//也没有在调度
+    m_dispatchingCardNumber=0;//已经调度0张卡
 
     m_game=(Game*)parent;
 
@@ -85,19 +87,18 @@ void Player::chooseBackgroud(GraphicsItem* background, int standPoint)//选择�
     {
         this->handCard->setUnseen();//则手牌区不可见
     }
-
 }
 
 void Player::createCard(Card *card)//玩家创建一张新的卡牌，并连接到当前的游戏和背景，设置其id值
 {
     if(m_game)
     {
-        card->setGame(m_game);
-        card->setId(m_card.size());
-        m_card.push_back(card);
+        card->setGame(m_game);//设置每张卡牌的游戏指针，这样才能发挥卡牌的各种拓展功能
+        card->setId(m_card.size());//设置卡牌在玩家中的编号，用于后续的网络传输
+        m_card.push_back(card);//将所有卡牌的地址都存入m_card中
         if(m_background)
         {
-            card->setParentItem(m_background);
+            card->setParentItem(m_background);//设置其背景为当前的游戏背景
         }
     }
 }
@@ -106,13 +107,11 @@ void Player::chooseDeck(int deckId)//选择自己编号为deckId的卡组
 {
     if(!m_game)
     {
-        qDebug()<<"false";//在选择卡组之前一定要先进入一个游戏，获得指向这个游戏的指针
+        qDebug()<<"game is not created";//在选择卡组之前一定要先进入一个游戏，获得指向这个游戏的指针
         return;
     }
 
-    QFile file(DeckFilePrefix+QString::number(deckId)+QString(".dat"));
-
-//    QFile file(QDir::currentPath()+QString("/Deck")+QString::number(deckId)+QString(".dat"));;//打开存储牌组的文件
+    QFile file(DeckFilePrefix+QString::number(deckId)+QString(".dat"));//打开存储牌组的文件
 
     if(!file.open(QIODevice::ReadOnly))
     {
@@ -134,15 +133,8 @@ void Player::chooseDeck(int deckId)//选择自己编号为deckId的卡组
     {
         int idOfDatabase=newDeck.getNthCardId(i);//newDeck中存储的是在每张牌在数据库中的编号
         Card* card=cardDatabase.getCardWithIdOfDatabase(idOfDatabase);//从数据库中读入这张牌,
-        card->setParentItem(m_background);//设置其背景为当前的游戏背景
-        card->setGame(m_game);//设置每张卡牌的游戏指针，这样才能发挥卡牌的各种拓展功能
-        card->setId(i);//设置卡牌在玩家中的编号，用于后续的网络传输
-
-        //connect(card,SIGNAL(cardReleaseAt(QPointF,Card*)), this, SLOT(on_cardReleaseAt(QPointF,Card*)));//连接与卡牌释放
-        connect(card, SIGNAL(cardMoveBy(QPointF,Card*)), this, SLOT(on_cardMoveBy(QPointF,Card*)));//和移动相关的信号
-
-        m_card.push_back(card);//将所有卡牌的地址都存入m_card中
-        //m_card[i]=card;
+        createCard(card);//将这张卡加入玩家
+        connect(card, SIGNAL(cardMoveBy(QPointF,Card*)), this, SLOT(on_cardMoveBy(QPointF,Card*)));//连接和移动相关的信号
         if(i==0)
         {
             handCard->setLeader(card);//卡组第一张总是领袖
@@ -175,20 +167,36 @@ void Player::drawACardFromLibrary()//从牌库中抽一张牌
         handCard->addCard(card);
     }
 }
-
+/*
 void Player::dispatchCardFromTo(Card *oldCard, Card *newCard)//调度第i个选手的一张卡牌,此处存疑
 {
     handCard->removeCard(oldCard);
     handCard->addCard(newCard);
+}*/
+
+void Player::dispatchCard(Card *oldCard)
+{
+    m_dispatchingOldCard[m_dispatchingCardNumber]=oldCard;
+    m_dispatchingCardNumber++;
+    Card *newCard=library->drawACardByRandom();
+
+    for(int i=0; i<m_dispatchingCardNumber; i++)
+    {
+        if(newCard->getName()==m_dispatchingOldCard[i]->getName())//如果调度抽到的卡和之前的丢掉的卡是同名卡
+        {
+            library->addCard(newCard);//则将其放回卡库
+            newCard=library->drawACardByRandom();//重新抽卡
+            i=0;
+            break;
+        }
+    }
+
+    //如果总算抽到一张和之前丢掉的卡都不是同名卡的卡牌
+    handCard->addCard(newCard);//则将其加入手牌
 }
 
 void Player::getTurn()//获得出牌机会
-{/*
-    if(m_isOnTurn)
-    {
-        return;
-    }
-*/
+{
     if(handCard->getSize()==0)//如果手牌为空
     {
         choosePassed();//自动让过
@@ -204,9 +212,11 @@ void Player::getTurn()//获得出牌机会
 
         m_isOnTurn=true;//轮到出牌
 
+        turnOnTimer();//打开定时器
+
         m_leftTime=PlayerDealTime;//定时10s
 
-        emit playerGetTurn();
+        emit playerGetTurn();//向外界发送自己得到回合的信号
     }
     else
     {
@@ -224,10 +234,13 @@ void Player::loseTurn()//失去出牌机会
 
         m_isOnTurn=false;
 
+        turnOffTimer();//关闭定时器
+
         m_leftTime=PlayerDealTime;
 
-        emit playerLoseTurn();
     }
+    emit playerLoseTurn();
+
 }
 
 
@@ -239,7 +252,6 @@ void Player::addCardFromHandToBattle(Card *card, COMBAT_ROW combatRow)//从手�
         card->setLeftTop(SpecialCardPos);//将其放置在特殊卡的位置
         card->on_handToBattleField(combatRow);//发动每个牌的部署效果，同时发送出牌的信号
         m_hasDealed=true;//当前已经发出卡牌
-        //loseTurn();
     }
     else//如果是一般卡，则放到相应战排
     {
@@ -250,7 +262,6 @@ void Player::addCardFromHandToBattle(Card *card, COMBAT_ROW combatRow)//从手�
             handCard->removeCard(card);//手牌区需要删除卡牌
             card->on_handToBattleField(combatRow);//发动每个牌的部署效果，同时发送出牌的信号
             m_hasDealed=true;
-            //loseTurn();
         }
     }
 }
@@ -272,7 +283,7 @@ void Player::loseOneHandcardByRandom()//随机丢弃一张手牌
         choosePassed();//自动让过
         return;
     }
-    int i=rand()%handCard->getSize();//否则随机找到一张牌
+    int i=qrand()%handCard->getSize();//否则随机找到一张牌
     Card *card=handCard->getNthCard(i);
     if(card)
     {
@@ -370,6 +381,7 @@ void Player::choosePassed() //选择让过
     if(!m_hasChosenPassed)
     {
         m_hasChosenPassed=true;
+        updatePassShow();
     }
 }
 
@@ -422,10 +434,14 @@ void Player::updateTotalStrengthShow()//更新总分的显示
     }
 }
 
+void Player::updatePassShow()//更新玩家是否选择了让过
+{
+    handCard->showPass(m_hasChosenPassed);
+}
 
 void Player::on_oneSecondGone()//每隔1s响应一次
 {
-    if(m_isOnTurn)//如果当前轮到发牌
+    if(m_timerSwitch)//如果计时器打开
     {
         m_leftTime--;//每隔1s剩余时间减一
         qDebug()<<m_leftTime;
@@ -440,21 +456,6 @@ void Player::on_oneSecondGone()//每隔1s响应一次
         }
     }
 }
-/*
-void Player::addCard(Card *newCard)//note:弃用
-{
-    newCard->setId(m_card.size());//从0开始编号
-    m_card.push_back(newCard);//
-    if(m_game)
-    {
-        newCard->setGame(m_game);//设置游戏指针
-        if(m_background)//和背景指针，以便于后溪的调用
-        {
-            newCard->setParentItem(m_background);
-        }
-    }
-}*/
-
 
 QDataStream &operator<<(QDataStream &out, const Player &player)
 {
@@ -471,7 +472,8 @@ QDataStream &operator<<(QDataStream &out, const Player &player)
     out<<*(player.library);
     out<<*(player.graveyard);
 
-    out << player.m_leftTime << player.m_isOnTurn << player.m_hasChosenPassed;
+    //out << player.m_leftTime << player.m_isOnTurn << player.m_hasChosenPassed;
+    out << player.m_hasChosenPassed;
 
     return out;
 
@@ -496,27 +498,15 @@ QDataStream &operator>>(QDataStream &in, Player &player)
             in>>card;
 
             Card *newCard=cardDatabase.getCardWithIdOfDatabase(card.getIdOfDatabase());
-            newCard->setId(i);
+            player.createCard(newCard);
+            qDebug()<<"create derivative";
+
             newCard->setActualCombatRow(card.getActualCombatRow());
             newCard->setStatus(card.getStatus());
             newCard->setStrength(card.getActualStrength());
             if(card.hasShield())
                 newCard->getShield();
             newCard->getArmor(card.hasArmor());
-
-            if(player.m_game)
-            {
-                newCard->setGame(player.m_game);
-            }
-
-            if(player.m_background)
-            {
-                newCard->setParentItem(player.m_background);
-            }
-
-            player.m_card.push_back(newCard);
-
-            qDebug()<<"Create "<<QString::fromStdString(newCard->getName())<<" !!!";
         }
     }
 
@@ -527,21 +517,22 @@ QDataStream &operator>>(QDataStream &in, Player &player)
     in>>*(player.library);
     in>>*(player.graveyard);
 
-    in >> player.m_leftTime >> player.m_isOnTurn >> player.m_hasChosenPassed;
+    //in >> player.m_leftTime >> player.m_isOnTurn >> player.m_hasChosenPassed;
+    in >> player.m_hasChosenPassed;
 
     //将传递过程中的id转化为card指针
     player.closeBattle->m_currentCard.clear();
-    for(int i=0; i<player.closeBattle->m_currentCardId.size(); i++)
+    for(int i=0; i<player.closeBattle->m_transformData.size(); i++)
     {
-        struct TransformData data=player.closeBattle->m_currentCardId[i];
+        struct TransformData data=player.closeBattle->m_transformData[i];
         int id=data.id;
-        if(data.loyalty)
+        if(data.loyalty)//如果这种卡牌是忠诚的
         {
-            player.closeBattle->addCard(player.m_card[id]);
+            player.closeBattle->addCard(player.m_card[id]);//到我方玩家处取卡牌信息
         }
         else
         {
-            if(player.m_game)
+            if(player.m_game)//否则到敌方玩家处取卡牌信息
             {
                 player.closeBattle->addCard(player.m_game->getPlayer(ENEMY)->m_card[id]);
             }
@@ -549,9 +540,9 @@ QDataStream &operator>>(QDataStream &in, Player &player)
     }
 
     player.remoteBattle->m_currentCard.clear();
-    for(int i=0; i<player.remoteBattle->m_currentCardId.size(); i++)
+    for(int i=0; i<player.remoteBattle->m_transformData.size(); i++)
     {
-        struct TransformData data=player.remoteBattle->m_currentCardId[i];
+        struct TransformData data=player.remoteBattle->m_transformData[i];
         int id=data.id;
         if(data.loyalty)
         {
@@ -567,9 +558,9 @@ QDataStream &operator>>(QDataStream &in, Player &player)
     }
 
     player.siegeBattle->m_currentCard.clear();
-    for(int i=0; i<player.siegeBattle->m_currentCardId.size(); i++)
+    for(int i=0; i<player.siegeBattle->m_transformData.size(); i++)
     {
-        struct TransformData data=player.siegeBattle->m_currentCardId[i];
+        struct TransformData data=player.siegeBattle->m_transformData[i];
         int id=data.id;
         if(data.loyalty)
         {
@@ -607,7 +598,6 @@ QDataStream &operator>>(QDataStream &in, Player &player)
         player.library->addCard(player.m_card[id]);
     }
 
-    //qDebug()<<player.graveyard->m_cardIds.size();
     player.graveyard->clear();
     for(int i=0; i<player.graveyard->m_cardIds.size(); i++)
     {

@@ -463,6 +463,7 @@ void CardDerived::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)//释放鼠�
     {
         if(this->m_status==STATUS::HAND)//如果这种牌是手牌
         {
+            /*
             qDebug()<<"mouse release";
             if(this->m_initCombatRow==COMBAT_ROW::NO_COMBATROW||//如果卡牌没有站位，
                this->m_initCombatRow==COMBAT_ROW::CLOSE||//或者站位确定
@@ -472,7 +473,7 @@ void CardDerived::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)//释放鼠�
                 this->m_oursizePlayer->addCardFromHandToBattle(this, m_initCombatRow);//则发动这张卡
                 return;
             }
-            
+            */
             //否则发送此时的位置，由
             qreal left=(this->boundingRect().x()+this->pos().x()-this->parentItem()->x())/this->parentItem()->boundingRect().width();
             qreal top=(this->boundingRect().y()+this->pos().y()-this->parentItem()->y())/this->parentItem()->boundingRect().height();

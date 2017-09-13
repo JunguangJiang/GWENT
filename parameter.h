@@ -51,6 +51,14 @@ const QSizeF TurnShowSize=QSizeF(0.2,0.06);
 const QPointF LeftTimeShowPos=QPointF(0.14, 0.5);
 const QSizeF LeftTimeShowSize=QSizeF(0.055, 0.085);
 
+//当前局数的显示
+const QPointF GameRoundShowPos=QPointF(0.1,0.8);
+const QSizeF GameRoundShowSize=QSizeF(0.1,0.1);
+
+//上一局结果的显示
+const QPointF GameRoundResultShowPos=QPointF(0.4,0.4);
+const QSizeF GameRoundResultShowSize=QSizeF(0.2,0.2);
+
 //----------------------------玩家部分----------------------------
 
 
@@ -130,7 +138,7 @@ const QSizeF GraveyardShowSize=QSizeF(0.013,0.027);
 
 const QPointF LibraryShowPos[2]=//牌库中卡牌数量显示区的位置和尺寸
 {
-    QPointF(0.93,0.035),
+    QPointF(0.93,0.01),
     QPointF(0.93,0.94)
 };
 const QSizeF LibraryShowSize=QSizeF(0.013,0.03);

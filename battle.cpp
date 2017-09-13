@@ -18,7 +18,7 @@ BattleField::BattleField(const COMBAT_ROW type, GraphicsItem *parent):
     m_showBorder=false;//不显示边界
 
     m_currentCard.clear();
-    m_currentCardId.clear();
+    m_transformData.clear();
 
     //设置战排战力显示
     m_totalStrength=new text(BattleStrengthShowPos[static_cast<int>(type)], BattleStrengthShowSize,this);
@@ -395,7 +395,7 @@ QDataStream &operator>>(QDataStream &in,  BattleField &battleField)
     int size;
     in>>size;
 
-    battleField.m_currentCardId.clear();
+    battleField.m_transformData.clear();
 
     for(int i=0; i<size; i++)
     {
@@ -404,7 +404,7 @@ QDataStream &operator>>(QDataStream &in,  BattleField &battleField)
         bool loyalty;
         in>>loyalty;
         struct TransformData data={cardId, loyalty};
-        battleField.m_currentCardId.push_back(data);
+        battleField.m_transformData.push_back(data);
     }
 
     return in;

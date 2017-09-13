@@ -35,15 +35,25 @@ Dialog::Dialog(int userId, QWidget *parent) :
 
 }
 
+void Dialog::uploadGame()
+{
+
+}
+
+void Dialog::downloadGame()
+{
+
+}
+
 void Dialog::playGame(long long gameId, int playerId1, int playerId2)
 {
     game1=new Game(0,0,1,this);
     mainGameBackground=new GraphicsItem(0,0,1,1,MainBackgroundImagePath);
     mainGameScene->addItem(mainGameBackground);
 
-    game1->setDeckId(3,2);
-
     game1->playGameIn(m_myUserId,mainGameBackground);
+
+    game1->setDeckId(3,2);
 
     game1->startGame();
 

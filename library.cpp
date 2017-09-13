@@ -67,6 +67,23 @@ Card* Library::drawACard()
     return card;
 }
 
+Card* Library::drawACardByRandom()
+{
+    if(m_cards.empty())
+    {
+        return Q_NULLPTR;
+    }
+    int i=qrand()%m_cards.size();
+    auto iter=m_cards.begin()+i;
+    Card* card=*(iter);
+    if(card)
+    {
+        m_cards.erase(iter);
+    }
+    return card;
+    this->update();
+}
+
 void Library::shuffleCards()//洗牌
 {
     for(int i=m_cards.size()-1; i>0; i--)
