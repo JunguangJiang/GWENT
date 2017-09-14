@@ -80,8 +80,9 @@ Card* Library::drawACardByRandom()
     {
         m_cards.erase(iter);
     }
-    return card;
     this->update();
+    return card;
+
 }
 
 void Library::shuffleCards()//洗牌
@@ -137,6 +138,7 @@ Card* Library::getCardOfName(std::string name)
                 qDebug()<<"find:"<<QString::fromStdString((*iter)->getName());
                 Card* card=*iter;
                 m_cards.erase(iter);
+                this->update();
                 //removeCard(*iter);//则从牌库删除这张牌
                 return card;//并且返回该牌的指针
             }
@@ -153,6 +155,12 @@ void Library::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, Q
     {
         m_sizeShow->setText(std::to_string(m_cards.size()));
         m_sizeShow->update();
+    }
+
+    for(int i=0; i<m_cards.size(); i++)
+    {
+        m_cards[i]->setLeftTop(1,1);
+        m_cards[i]->update();
     }
 }
 

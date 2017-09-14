@@ -162,6 +162,7 @@ Card* HandCard::discardByRandom()//随意丢弃一张手牌
     int i=rand()%m_cards.size();
     Card* discardedCard=*(m_cards.begin()+i);
     m_cards.erase(m_cards.begin()+i);
+    update();
     return discardedCard;
 }
 
@@ -193,6 +194,7 @@ void HandCard::showAllCards(QPainter* painter)//展示卡牌上所有的卡牌
         m_cards[i]->setLeftTop(left, top);
         left+=handCardHorizontalDistance;
         m_cards[i]->setZValue(i);
+        m_cards[i]->update();
     }
 
 }

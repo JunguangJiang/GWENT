@@ -16,6 +16,7 @@ Player::Player(const int userId, QObject *parent) : QObject(parent), m_userId(us
     m_isOnTurn=false;//也没有轮到发牌
     m_isDispatchingCard=false;//也没有在调度
     m_dispatchingCardNumber=0;//已经调度0张卡
+    m_timerSwitch=false;//一开始关闭定时器
 
     m_game=(Game*)parent;
 
@@ -145,6 +146,36 @@ void Player::chooseDeck(int deckId)//选择自己编号为deckId的卡组
     }
 }
 
+void Player::setDeck(Deck* deck)
+{
+    if(!m_game)
+    {
+        qDebug()<<"game is not created";//在选择卡组之前一定要先进入一个游戏，获得指向这个游戏的指针
+        return;
+    }
+
+    qDebug()<<"Leader number:"<<deck->getNthCardId(0);
+
+    CardDatabase cardDatabase;//打开牌组数据库
+
+    int size=deck->getSize();
+
+    for(int i=0; i<size; i++)
+    {
+        int idOfDatabase=deck->getNthCardId(i);//newDeck中存储的是在每张牌在数据库中的编号
+        Card* card=cardDatabase.getCardWithIdOfDatabase(idOfDatabase);//从数据库中读入这张牌,
+        createCard(card);//将这张卡加入玩家
+        connect(card, SIGNAL(cardMoveBy(QPointF,Card*)), this, SLOT(on_cardMoveBy(QPointF,Card*)));//连接和移动相关的信号
+        if(i==0)
+        {
+            handCard->setLeader(card);//卡组第一张总是领袖
+        }else
+        {
+            library->addCard(card);//初始时刻，其余卡牌都放进卡库中
+        }
+    }
+}
+
 void Player::shuffleCards()//洗牌,伪随机，之后需要改成真随机
 {
     library->shuffleCards();
@@ -174,14 +205,42 @@ void Player::dispatchCardFromTo(Card *oldCard, Card *newCard)//调度第i个选�
     handCard->addCard(newCard);
 }*/
 
+void Player::setIsDispatchingCard(bool isDispatchingCard)
+{
+    m_isDispatchingCard=isDispatchingCard;
+    if(isDispatchingCard)
+    {
+        turnOnTimer();
+    }else
+    {
+        turnOffTimer();
+    }
+}
+
 void Player::dispatchCard(Card *oldCard)
 {
+    if(!oldCard)
+        return;
+
     m_dispatchingOldCard[m_dispatchingCardNumber]=oldCard;
     m_dispatchingCardNumber++;
+
+    qDebug()<<"my dispatching number"<<m_dispatchingCardNumber;
+    qDebug()<<"old card name"<<QString::fromStdString(oldCard->getName());
+
+    handCard->removeCard(oldCard);
+    library->addCard(oldCard);
+
     Card *newCard=library->drawACardByRandom();
+
+    if(!newCard)
+    {
+        return;
+    }
 
     for(int i=0; i<m_dispatchingCardNumber; i++)
     {
+        qDebug()<<"newcard name"<<QString::fromStdString(newCard->getName());
         if(newCard->getName()==m_dispatchingOldCard[i]->getName())//如果调度抽到的卡和之前的丢掉的卡是同名卡
         {
             library->addCard(newCard);//则将其放回卡库
@@ -193,6 +252,12 @@ void Player::dispatchCard(Card *oldCard)
 
     //如果总算抽到一张和之前丢掉的卡都不是同名卡的卡牌
     handCard->addCard(newCard);//则将其加入手牌
+
+    if(m_dispatchingCardNumber>=3)
+    {
+        emit endDispatchingCard();
+        return;
+    }
 }
 
 void Player::getTurn()//获得出牌机会
@@ -445,15 +510,31 @@ void Player::on_oneSecondGone()//每隔1s响应一次
     {
         m_leftTime--;//每隔1s剩余时间减一
         qDebug()<<m_leftTime;
-        if(m_leftTime==0)//如果减到0，
+
+
+        if(m_isDispatchingCard)
         {
-            if(m_hasDealed==false)//如果当前没有发牌
+            if(m_leftTime==0)
             {
-                loseOneHandcardByRandom();//失去一张手牌作为惩罚
+                emit endDispatchingCard();
+                turnOffTimer();
             }
-            loseTurn();//失去发牌机会
-            return;//返回
+            return;
         }
+
+        if(m_isOnTurn)
+        {
+            if(m_leftTime==0)//如果减到0，
+            {
+                if(m_hasDealed==false)//如果当前没有发牌
+                {
+                    loseOneHandcardByRandom();//失去一张手牌作为惩罚
+                }
+                loseTurn();//失去发牌机会
+                return;//返回
+            }
+        }
+
     }
 }
 

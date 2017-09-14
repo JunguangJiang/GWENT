@@ -406,6 +406,11 @@ void CardDerived::mouseMoveEvent(QGraphicsSceneMouseEvent *event)//鼠标移动�
 {
     if(!m_game)
         return;
+
+    if(m_isDispatching)
+    {
+        return;//调度环节不响应其他信号
+    }
     
     if(this->m_oursizePlayer->isOnTurn())//只有在我方选手轮到发牌时才响应
     {
@@ -421,13 +426,20 @@ void CardDerived::mouseMoveEvent(QGraphicsSceneMouseEvent *event)//鼠标移动�
 
 void CardDerived::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)//鼠标双击可以直接发动站位确定的卡和没有站位的卡
 {
-    
+    if(!m_game)
+        return;
+
+    if(m_isDispatching)//调度环节不响应其他信号
+    {
+        emit cardDispatched(this);
+        return;
+    }
+
     emit cardPressed(this);
     
     qDebug()<<"mouse double clicked outside handcard";
     
-    if(!m_game)
-        return;
+
     
     if(this->m_oursizePlayer->isOnTurn())//如果我方选手在出牌阶段
     {
@@ -451,6 +463,11 @@ void CardDerived::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)//释放鼠�
 {
     //emit cardPressed(this);
     
+    if(m_isDispatching)
+    {
+        return;//调度环节不响应
+    }
+
     qDebug()<<"mouse release";
     
     setCursor(Qt::OpenHandCursor);
@@ -1334,7 +1351,7 @@ void CardArachasBehemoth::on_handToBattleField(COMBAT_ROW combatRow)
     emit handToBattleField(combatRow,this);
     
     this->getArmor(2);
-    for(int i=0; i<this->m_oursizePlayer->getCardsSize(); i++)
+    for(int i=0; i<this->m_oursizePlayer->getSize(); i++)
     {
         connect(this->m_oursizePlayer->getNthCard(i), SIGNAL(swallowFriend()), this, SLOT(produce()));
     }
@@ -2014,7 +2031,7 @@ void CardRoach::on_addToLibrary()
     if(!m_game)
         return;
     
-    for(int i=0; i<this->m_oursizePlayer->getCardsSize(); i++)//则连接所有的牌
+    for(int i=0; i<this->m_oursizePlayer->getSize(); i++)//则连接所有的牌
     {
         Card *card=this->m_oursizePlayer->getNthCard(i);
         if(card && card->getInitType()==TYPE::GOLD //每当金色牌

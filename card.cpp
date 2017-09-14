@@ -109,6 +109,8 @@ void Card::initialize()//为了使构造函数看上去更加简洁
     m_isLeader=false;
 
     m_showGoalLine=false;
+
+    m_isDispatching=false;
 }
 
 void Card::setLeftTop(qreal left, qreal top)//设置卡牌的位置，left和top是卡牌左上方点的横纵坐标

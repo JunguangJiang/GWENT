@@ -133,18 +133,18 @@ const QPointF GraveyardShowPos[2]=//墓地中卡牌数量显示区的位置和�
     QPointF(0.79,0.035),
     QPointF(0.79,0.94)
 };
-const QSizeF GraveyardShowSize=QSizeF(0.013,0.027);
+const QSizeF GraveyardShowSize=QSizeF(0.02,0.027);
 //----------------------------牌库部分---------------------------
 
 const QPointF LibraryShowPos[2]=//牌库中卡牌数量显示区的位置和尺寸
 {
-    QPointF(0.93,0.01),
+    QPointF(0.93,0.035),
     QPointF(0.93,0.94)
 };
-const QSizeF LibraryShowSize=QSizeF(0.013,0.03);
+const QSizeF LibraryShowSize=QSizeF(0.02,0.03);
 
 //牌库图片
-const QPointF LibararyPos[2]={QPointF(0.88,0.04),QPointF(0.88,0.873)};
+const QPointF LibararyPos[2]={QPointF(0.88,0.01),QPointF(0.88,0.873)};
 const QSizeF LibararySize=QSizeF(0.06,0.11);
 
 const QString LibraryImagePath=QString(":/img/ui/res/uiPicture/unknownCard.png");

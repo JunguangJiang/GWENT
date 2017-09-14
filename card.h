@@ -41,6 +41,8 @@ protected:
 
     bool m_showGoalLine;            //是否显示目标指示线
 
+    bool m_isDispatching;//当前是否正在调度
+
     //-----------------在游戏中用于显示卡牌当前信息的文本框------------
     text *m_strengthShow;
     text *m_armorShow;
@@ -95,6 +97,9 @@ public:
 
     void showGoalLine(bool show){m_showGoalLine=show;}//是否显示目标指示线
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);//卡牌的绘画
+
+    void setIsDispatching(bool isDispatching){m_isDispatching=isDispatching;}//设置
+    bool getIsDispatching()const{return m_isDispatching;}//与查询当前是否正在调度
 
     //---------------------在派生类中用到的函数----------------------
     virtual void setGame(Game* game){qDebug()<<"set game virtual";}//设置当前卡牌是在哪场游戏中
@@ -181,6 +186,8 @@ signals:
     void cardMoveBy(QPointF point, Card* card);//卡牌移动到point点
     void cardPressed(Card *card);//鼠标点击卡牌
     void cardHover(Card *card);//鼠标移动到卡牌上方
+
+    void cardDispatched(Card *card);//这张卡将被调度
 };
 
 

@@ -18,6 +18,7 @@
 
 using namespace gwent;
 class Game;
+class Deck;
  //--------------------某一局游戏的玩家类----------------------------
 
 class Player : public QObject
@@ -32,13 +33,13 @@ public:
     void chooseBackgroud(GraphicsItem* background, int standPoint);//选择游戏背景,立场standPoint分为我方OURSIDE，敌方ENEMY
     void createCard(Card* card);//生成一张新的卡,然后将卡牌的地址存储在m_card中，同时连接游戏和背景，确定其id
     void chooseDeck(int deckId);//选择自己编号为deckId的卡组
+    void setDeck(Deck* deck);//设置卡组为deck
 
     //--------------------游戏逻辑相关--------------------------------
     void shuffleCards();//洗牌
     void drawInitCards();//游戏初始时抽手牌，实质上就是从牌库中抽10张牌
     void drawACardFromLibrary();//从牌库中抽一张牌
     //void dispatchCardFromTo(Card* oldCard, Card* newCard);//调度第i个选手的一张卡牌
-    void dispatchCard(Card* oldCard);
 
     void getTurn();         //获得出牌机会，由game类通知后获得
     void loseTurn();        //失去出牌机会
@@ -54,7 +55,7 @@ public:
     void choosePassed();    //选择让过
     void loseOneHandcardByRandom();//随机丢弃一张手牌
 
-    void turnOnTimer(){m_timerSwitch=true;}//打开定时器
+    void turnOnTimer(){m_timerSwitch=true; m_leftTime=PlayerDealTime;}//打开定时器
     void turnOffTimer(){m_timerSwitch=false;}//关闭定时器
 
     void hideBordersOfAllBattles();//所有的战排的边框都不显示
@@ -68,7 +69,7 @@ public:
     bool canMoveCard() const {return m_isOnTurn;}//此时是否可以移动手牌
     BattleField *getBattle(COMBAT_ROW combatRow)const;//根据combatrow返回相应的战排指针
     COMBAT_ROW getBattleFieldOfPoint(QPointF point) const;//返回与坐标相对应的战排
-    int getCardsSize()const{return m_card.size();}//获得玩家的总卡片数大小
+    int getSize()const{return m_card.size();}//获得玩家的总卡片数大小
     //int getCardsSize()const{return cardSize;}//获得玩家的总卡片数大小
     Card* getNthCard(int i)const{return m_card[i];}//获得玩家总卡片中的第i张
     Card *getWeakestCard()const;//返回玩家战排上的最弱卡
@@ -82,7 +83,7 @@ public:
     void setHasDealed(bool hasDeal){m_hasDealed=hasDeal;}//设置当前是否已经发牌了
     bool getHasDealed()const{return m_hasDealed;}//查询当前局是否已经发牌
 
-    void setIsDispatchingCard(bool isDispatchingCard){m_isDispatchingCard=isDispatchingCard;}//设置
+    void setIsDispatchingCard(bool isDispatchingCard);//设置当前是否正在调度
     bool getIsDispatchingCard()const{return m_isDispatchingCard;}//与查询当前是否正在调度
 
     void setHasChosenPassed(bool hasChosenPassed){m_hasChosenPassed=hasChosenPassed;}
@@ -94,6 +95,8 @@ signals:
     void playerGetTurn();//每次该选手轮到出牌时，发送该信号
     void playerLoseTurn();//每次选手出牌时间用完时，发送该信号
 
+    void endDispatchingCard();//结束卡牌调度时发送该信号
+
 public slots:
     //------------------外部响应接口-------------------------------
     void on_cardReleaseAt(QPointF point, Card* card);//对卡牌释放的事件作出响应
@@ -101,6 +104,8 @@ public slots:
 
     void updateTotalStrengthShow();//更新玩家总分的显示
     void on_oneSecondGone();//每过1s响应一次
+
+    void dispatchCard(Card* oldCard);//调度手牌
 
 public:
     //-----------------玩家类所拥有的物品---------------------------
