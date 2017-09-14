@@ -25,9 +25,9 @@ Deck::Deck(int deckId, GraphicsItem *parent) :GraphicsItem(0,0,1,1,ModifyDeckIma
     m_saveButton->setEnabled(true);
     connect(m_saveButton, SIGNAL(buttonPressed()), this, SLOT(on_saveButtonPressed()));
 
-    m_exitButton=new Button(DeckExitPos, DeckExitSize, ExitButtonImagePath, this);
-    m_exitButton->setEnabled(true);
-    connect(m_exitButton, SIGNAL(buttonPressed()), this, SLOT(on_exitButtonPressed()));
+    //m_exitButton=new Button(DeckExitPos, DeckExitSize, ExitButtonImagePath, this);
+    //m_exitButton->setEnabled(true);
+    //connect(m_exitButton, SIGNAL(buttonPressed()), this, SLOT(on_exitButtonPressed()));
 
     m_hasLeader=false;
 
@@ -175,7 +175,7 @@ void Deck::on_cardPressed(Card *card)
 
 void Deck::on_saveButtonPressed()
 {
-    if(m_totalCardNumber>40 || m_totalCardNumber<1 || m_hasLeader==false)
+    if(m_totalCardNumber>40 || m_totalCardNumber<25 || m_hasLeader==false)
     {
         return;
     }
@@ -185,7 +185,6 @@ void Deck::on_saveButtonPressed()
 
         QFile file(DeckFilePrefix+QString::number(m_deckId)+QString(".dat"));
 
-        //QFile file(QDir::currentPath()+QString("/Deck")+QString::number(m_deckId)+QString(".dat"));
         if(!file.open(QIODevice::WriteOnly))
         {
             qDebug()<<"error writing";
@@ -210,7 +209,11 @@ void Deck::on_saveButtonPressed()
           qDebug()<<QString::number(newDeck.getNthCardId(i));
         }
         file.close();
+
+        emit closeInterface(ModifyDeckInterface);//退出当前界面
+
     }
+
 }
 
 void Deck::on_exitButtonPressed()

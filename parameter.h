@@ -6,8 +6,13 @@
 //定义了一些游戏界面中用到的参数
 
 namespace gwent {
+//-------------------界面编号--------------------------------
+const int InitialInterface=0;//初始化界面
+const int MainGameInterface=1;//游戏界面
+const int ModifyDeckInterface=2;//编辑卡组界面
+
 //------------------------存储格式-----------------------------
-const QString GameFilePrefix=QString("/Users/jiangjunguang/Desktop/GwentClient2/GWENT2/Game1.dat");//目前不是前缀
+const QString GameFilePrefix=QString("/Users/jiangjunguang/Desktop/GwentClient2/GWENT2/Game");//目前不是前缀
 const QString DeckFilePrefix=QString("/Users/jiangjunguang/Desktop/GwentClient2/GWENT2/Deck");
 //--------------------------主游戏---------------------------------
 //---调试用---
@@ -56,9 +61,17 @@ const QPointF GameRoundShowPos=QPointF(0.1,0.8);
 const QSizeF GameRoundShowSize=QSizeF(0.1,0.1);
 
 //上一局结果的显示
-const QPointF GameRoundResultShowPos=QPointF(0.4,0.4);
+const QPointF GameRoundResultShowPos=QPointF(0.8,0.7);
 const QSizeF GameRoundResultShowSize=QSizeF(0.2,0.2);
 
+//整场游戏的结果
+const QPointF GameResultShowPos[2]={
+    QPointF(0.3, 0.4),
+    QPointF(0.3, 0.6)
+};
+const QSizeF GameResultShowSize=QSizeF(0.4,0.2);
+
+const QString GameResultShowImagePath=QString("://res/uiPicture/GameEnding.png");
 //----------------------------玩家部分----------------------------
 
 
@@ -297,13 +310,13 @@ namespace gwent {
 
     enum class GameStatus   //游戏运行状态
     {
-        PLAYER_0_WIN,       //玩家0赢了
-        PLAYER_1_WIN,       //玩家1赢了
-        END_IN_DRAW,        //打成平手
         UNSTARTED,          //还未开始
         PLAYING,            //正在进行中
-        PAUSE               //游戏暂停了
+        PAUSE,               //游戏暂停了
+        OVER                //游戏结束了
     };
+
+    const int NoWinner=-1;//打成平手
 
 }
 

@@ -90,7 +90,7 @@ public:
     bool getHasChosenPassed() const{return m_hasChosenPassed;}//是否选择了让过
 
     void updatePassShow();//更新是否让过的状态显示
-
+    void updateFinalStrength(int currentRound);//更新上一局的回合战斗力
 signals:
     void playerGetTurn();//每次该选手轮到出牌时，发送该信号
     void playerLoseTurn();//每次选手出牌时间用完时，发送该信号
@@ -114,6 +114,7 @@ public:
     Library* library;//牌库
     Graveyard* graveyard;//墓地
     text* m_totalStrengthShow;//我的总分显示
+    int m_finalStrength[3];
 
 private:
     //------------------玩家类的私有属性-----------------------------

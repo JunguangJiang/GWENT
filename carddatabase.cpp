@@ -400,6 +400,7 @@ void CardDerived::battleFieldToGraveyard()//从战场进入墓地
         return;
     this->m_oursizePlayer->getBattle(this->getActualCombatRow())->removeCard(this);//一般卡牌直接从战场进入墓地即可，如果卡牌有遗愿则需要重载
     this->m_oursizePlayer->graveyard->addCard(this);
+    qDebug()<<QString::fromStdString(this->getName())<<"to battlefield";
 }
 
 void CardDerived::mouseMoveEvent(QGraphicsSceneMouseEvent *event)//鼠标移动时
@@ -710,6 +711,8 @@ void CardWoodlandSpirit::on_handToBattleField(COMBAT_ROW combatRow)
     }
     
     this->m_enemyPlayer->getBattle(combatRow)->changeClimate(CLIMATE::FOG);
+
+    this->m_oursizePlayer->loseTurn();
 }
 
 //------------------------土元素-------------------------------------------------------------

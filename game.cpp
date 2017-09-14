@@ -7,6 +7,8 @@
 #include <QFile>
 #include <QDir>
 #include <QMutex>
+#include <string>
+
 Game::Game(long long gameId,  int userId0, int userId1,  QObject *parent) :
     QObject(parent), m_gameId(gameId)
 { 
@@ -35,13 +37,14 @@ Game::Game(long long gameId,  int userId0, int userId1,  QObject *parent) :
     qsrand(QTime(0,0,0).secsTo(QTime::currentTime()));
     srand(time(NULL));//根据时间生成随机数种子,存疑
 
-
-    m_isDispatching=false;
+    m_isDispatching=false;//刚开始我方没有在发牌
+    m_currentRound=0;//一开始的回合数是0
+    m_shouldUpdateGame=true;//一开始应该不断去查询当前的游戏状态
 }
 
 Game::~Game()
 {
-
+    QFile::remove(GameFilePrefix+QString::number(m_gameId)+QString(".dat"));
 }
 
 void Game::playGameIn(int userId, GraphicsItem* background)//调用game的dialog的用户账号是userId，需要将game映射到background上
@@ -102,7 +105,6 @@ void Game::playGameIn(int userId, GraphicsItem* background)//调用game的dialog
 
     //上一轮结果的显示
     m_gameRoundResultShow=new text(GameRoundResultShowPos, GameRoundResultShowSize, background);
-    m_gameRoundResultShow->setBackgroundColor(Qt::white);
     m_gameRoundResultShow->setFontSize(28);
     m_gameRoundResultShow->setCenter();
 
@@ -110,6 +112,7 @@ void Game::playGameIn(int userId, GraphicsItem* background)//调用game的dialog
     m_gameRoundShow=new text(GameRoundShowPos, GameRoundShowSize, background);
     m_gameRoundShow->setFontSize(22);
     m_gameRoundShow->setFontColor(Qt::yellow);
+
 
 }
 
@@ -171,21 +174,19 @@ void Game::saveGame(const QString gameFile)
     QMutex mutex;
     mutex.lock();
 
-    //QFile file(QDir::currentPath()+QString("/")+gameFile);
-    //QFile file("/Users/jiangjunguang/Library/Mobile Documents/com~apple~CloudDocs/CodeProject/QT/GWENT_WHOLE/GwentClient/GWENT/Game1.dat");
+    QFile file(GameFilePrefix+QString::number(m_gameId)+QString(".dat"));
 
-    QFile file(GameFilePrefix);
-
-    //QFile file(QDir::currentPath()+QString("/Game")+QString::number(m_gameId)+QString(".dat"));
     if(!file.open(QIODevice::WriteOnly))
     {
         qDebug()<<"error writing";
     }
+    qDebug()<<"save game";
     QDataStream out(&file);
     out << *(this);
     file.close();
-
     mutex.unlock();
+
+    m_shouldUpdateGame=true;
 }
 
 void Game::updateGame(const QString gameFile)
@@ -193,7 +194,7 @@ void Game::updateGame(const QString gameFile)
     QMutex mutex;
     mutex.lock();
 
-    QFile file(GameFilePrefix);
+    QFile file(GameFilePrefix+QString::number(m_gameId)+QString(".dat"));
 
     if(!file.open(QIODevice::ReadOnly))
     {
@@ -207,12 +208,6 @@ void Game::updateGame(const QString gameFile)
     file.close();
     mutex.unlock();
 }
-
-void Game::saveGame()
-{
-    qDebug()<<"save game";
-}
-
 
 void Game::on_cardPressed(Card *card)//对卡牌点击事件作出响应
 {
@@ -261,43 +256,26 @@ void Game::on_oneSecondGone()//当1s中过去时
 {
     //更新时间显示
     updateTime();
+
+    if(m_player[OURSIDE]->isOnTurn()
+            ||m_player[OURSIDE]->getIsDispatchingCard()
+            || !m_shouldUpdateGame)
+        return;
+
+    //qDebug()<<m_shouldUpdateGame;
+
+    updateGame(GameFileName);//下载游戏进度
+
 }
 
 void Game::startGame()//玩家开始玩游戏
 {
-    m_player[OURSIDE]->shuffleCards();
-    m_player[OURSIDE]->drawInitCards();
-    enterDispatchingCard();
-    /*
-    updateRound();
+    m_shouldUpdateGame=false;
 
-    if(m_userId[0]==m_userIdOfDialog)
-    {
-        m_currentRound=0;//第一回合是0
-        m_gameRoundStatus[m_currentRound]=GameStatus::PLAYING;
-
-        //---洗牌
-       for(int i=0; i<2; i++)
-        {
-            m_player[i]->shuffleCards();//洗牌
-            m_player[i]->drawInitCards();//抽牌
-        }
-
-       enterDispatchingCard();
-
-        //decideOrderOfCards();//等概率决定先后手
-
-        saveGame(GameFileName);
-    }else if(m_userId[1]==m_userIdOfDialog)
-    {
-        updateGame(GameFileName);
-
-        m_player[m_currentPlayingUserNumber]->getTurn();
-
-        updateTime();
-    }*/
+    m_player[OURSIDE]->shuffleCards();//洗牌
+    m_player[OURSIDE]->drawInitCards();//抽牌
+    enterDispatchingCard();//进入调度
 }
-
 
 void Game::enterDispatchingCard()//进入调度
 {
@@ -306,7 +284,7 @@ void Game::enterDispatchingCard()//进入调度
         m_player[OURSIDE]->getNthCard(i)->setIsDispatching(true);//每张卡都属于调度期
         connect(m_player[OURSIDE]->getNthCard(i), SIGNAL(cardDispatched(Card*)), m_player[OURSIDE], SLOT(dispatchCard(Card*)));
     }
-    connect(m_player[OURSIDE], SIGNAL(endDispatchingCard()), this, SLOT(endDispatchingCard()));
+    connect(m_player[OURSIDE], SIGNAL(endDispatchingCard()), this, SLOT(endDispatchingCard()));//时间到了，点击pass，调度了3张卡，都会引发结束调度
     m_player[OURSIDE]->setIsDispatchingCard(true);
     m_isDispatching=true;
 }
@@ -322,20 +300,19 @@ void Game::endDispatchingCard()
     m_player[OURSIDE]->setIsDispatchingCard(false);
     m_isDispatching=false;
 
-    //结束调度时进入第一局游戏
-    m_currentRound=0;
+    //结束调度
+    //m_shouldUpdateGame=true;
 
-    if(m_userIdOfDialog==m_userId[1])//由第二个玩家的game来决定发牌顺序
+    updateRound();//更新当前的回合显示
+
+    if(m_userIdOfDialog==m_userId[1])//由第二个玩家掷筛子来决定发牌顺序
     {
+        m_gameStatus=GameStatus::PLAYING;
         decideOrderOfCards();
-        qDebug()<<"decide order";
-        m_gameRoundStatus[m_currentRound]=GameStatus::PLAYING;
     }
-    else
+    else//对于第一个玩家则需要上传游戏包，让第二个玩家进入调度
     {
-        emit uploadGamePackage();
-        qDebug()<<"upload game package";
-        m_gameRoundStatus[m_currentRound]=GameStatus::UNSTARTED;
+        saveGame(GameFileName);
     }
 }
 
@@ -348,11 +325,10 @@ void Game::decideOrderOfCards()//随机决定发牌顺序
         qDebug()<<"We first";
         m_player[OURSIDE]->getTurn();
         updateTime();
-
     }else if(rand==ENEMY)
     {
         qDebug()<<"Enemy first";
-        emit uploadGamePackage();
+        saveGame(GameFileName);//另外一个玩家先发牌
     }else
     {
         qDebug()<<"Error";
@@ -362,74 +338,85 @@ void Game::decideOrderOfCards()//随机决定发牌顺序
 void Game::on_playerLoseTurn()//当当前选手结束发牌时
 {
     //如果还不能判断游戏胜负
-    bool roundOver=judgeOfGameRound();
-    if(!roundOver)
+    bool roundOver=judgeOfGameRound();//判决游戏结果
+    if(!roundOver)//如果当前一局没有结束
     {
-        //则轮到另外一方发牌
-        emit uploadGamePackage();
+        saveGame(GameFileName);//则轮到另外一方发牌
     }
     else//假如当前局结束
     {
-        showGameRoundResult();//显示上一局的结果
-        bool gameOver=judgeOfGame();//判断整场游戏是否结束
-        if(!gameOver)//没有结束，
-        {
-            enterANewRound();//则进入新的一回合
-        }
-        else//结束的话
-        {
-            emit uploadGamePackage();
-            stopGame();//结束游戏
-        }
-    }
+        m_player[OURSIDE]->updateFinalStrength(m_currentRound);
+        m_player[ENEMY]->updateFinalStrength(m_currentRound);//记录上一局的总分
 
+        m_currentRound++;//当前局加一
+        qDebug()<<"current round"<<QString::number(m_currentRound-1)<<"is over";
+        updateRound();
+
+        bool gameOver=judgeOfGame();//判断整场游戏是否结束
+        if(gameOver)
+        {
+            m_gameStatus=GameStatus::OVER;
+            stopGame();
+            saveGame(GameFileName);//上传游戏
+        }
+        saveGame(GameFileName);//上传游戏
+    }
 }
 
 void Game::enterANewRound()//进入新的一回合
 {
-    m_player[OURSIDE]->enterANewRound();
-    m_currentRound++;
+    qDebug()<<"enter a new round";
 
-    qDebug()<<"enter round:"<<QString::number(m_currentRound);
+    m_player[OURSIDE]->enterANewRound();//进入新的一轮,清空战排上的卡牌
+    m_player[ENEMY]->enterANewRound();
 
-    if(m_lastWinner==OURSIDE)//上一局赢的玩家先开始发牌
+    if(m_lastWinner==m_userIdOfDialog)//上一局赢的玩家先开始发牌
     {
+        //showGameRoundResult(false);
         m_player[OURSIDE]->getTurn();
     }
-    else
+    else if(m_lastWinner==m_enemyId)
     {
-        emit uploadGamePackage();
+        saveGame(GameFileName);
     }
-    //m_player[m_lastWinner]->getTurn();
+    else//平局情况下
+    {
+        int randNumber=rand()%2;//下随机生成一个上一局赢的玩家，以确定下一局开始的次序
+        if(randNumber==0)
+        {
+            m_player[OURSIDE]->getTurn();
+        }else
+        {
+            saveGame(GameFileName);
+        }
+    }
 }
 
 bool Game::judgeOfGameRound()//判断当前局是否分出胜负，已分出胜负则返回true
 {
-    if(m_player[0]->getHasChosenPassed() &&
-            m_player[1]->getHasChosenPassed())//如果两方都已pass
+    if(m_player[ENEMY]->getHasChosenPassed() &&
+            m_player[OURSIDE]->getHasChosenPassed())//如果两方都已pass
     {
-        if((m_player[0]->getTotalStrength()) > (m_player[1]->getTotalStrength()))
+        if((m_player[ENEMY]->getTotalStrength()) > (m_player[OURSIDE]->getTotalStrength()))
         {
-            m_gameRoundStatus[m_currentRound]=GameStatus::PLAYER_0_WIN;
-            winningTimes[0]+=1;
-            m_lastWinner=0;
+            winningTimes[ENEMY]+=1;
+            m_lastWinner=m_enemyId;
             qDebug()<<"You lose";
         }
-        else if((m_player[0]->getTotalStrength()) < (m_player[1]->getTotalStrength()))
+        else if((m_player[ENEMY]->getTotalStrength()) < (m_player[OURSIDE]->getTotalStrength()))
         {
-            m_gameRoundStatus[m_currentRound]=GameStatus::PLAYER_1_WIN;
-            winningTimes[1]+=1;
-            m_lastWinner=1;
+            winningTimes[OURSIDE]+=1;
+            m_lastWinner=m_userIdOfDialog;
             qDebug()<<"You win";
         }
         else
         {
-            m_gameRoundStatus[m_currentRound]=GameStatus::END_IN_DRAW;
-            winningTimes[0]+=1;
-            winningTimes[1]+=1;
-            m_lastWinner=rand()%2;//平局情况下随机生成一个上一局赢的玩家，以确定下一局开始的次序
+            m_lastWinner=NoWinner;//平局
+            winningTimes[OURSIDE]+=1;
+            winningTimes[ENEMY]+=1;
             qDebug()<<"In draw";
         }
+        showGameRoundResult(true);
         return true;
     }
     else//否则当前局继续
@@ -441,21 +428,24 @@ bool Game::judgeOfGameRound()//判断当前局是否分出胜负，已分出胜�
 
 bool Game::judgeOfGame()//判断整场游戏是否分出胜负,分出返回true
 {
-    if(winningTimes[0]==2)
+    qDebug()<<"User"<<m_userIdOfDialog<<"win"<<winningTimes[OURSIDE];
+    if(winningTimes[OURSIDE]==2)
     {
-        if(winningTimes[1]<2)
+        if(winningTimes[ENEMY]<2)
         {
-            m_gameStatus=GameStatus::PLAYER_0_WIN;
+            qDebug()<<"you win the whole game";
         }
         else
         {
-            m_gameStatus=GameStatus::END_IN_DRAW;
+            qDebug()<<"in draw the whole game";
         }
+        m_gameStatus=GameStatus::OVER;
         return true;
     }
-    else if(winningTimes[1]==2)
+    else if(winningTimes[ENEMY]==2)
     {
-        m_gameStatus=GameStatus::PLAYER_1_WIN;
+        qDebug()<<"you lose the whole game";
+        m_gameStatus=GameStatus::OVER;
         return true;
     }
     else
@@ -464,32 +454,21 @@ bool Game::judgeOfGame()//判断整场游戏是否分出胜负,分出返回true
         return false;
     }
 }
-/*
-void Game::continueGame()//弃用
-{
-    updateGame(GameFileName);
-
-    m_player[m_currentPlayingUserNumber]->getTurn();
-
-    updateTime();
-}*/
 
 void Game::stopGame()//停止游戏
 {
     qDebug()<<"stop game";
+    m_player[OURSIDE]->loseTurn();
+    showGameResult();
     //显示游戏结果的画面
-    exit(0);
 }
 
 void Game::updateTime()
 {
-    //qDebug()<<"currentPlayingNumber:"<<QString::number(m_currentPlayingUserNumber);
-
     if(m_isDispatching)
     {
         m_turnShow->setText("Dispatching");
         m_leftTimeShow->setText(std::to_string(m_player[OURSIDE]->getLeftTime()));
-        //qDebug()<<"Dispatching";
     }
     else
     {
@@ -497,12 +476,10 @@ void Game::updateTime()
         {
             m_turnShow->setText("YOUR TURN");
             m_leftTimeShow->setText(std::to_string(m_player[OURSIDE]->getLeftTime()));
-            //qDebug()<<"Your turn";
         }else
         {
             m_turnShow->setText("OPPONENT TURN");
             m_leftTimeShow->setText("");
-            //qDebug()<<"openent turn";
         }
     }
     this->m_turnShow->update();
@@ -511,30 +488,77 @@ void Game::updateTime()
 
 }
 
-void Game::updateRound()
+void Game::updateRound()//显示当前局
 {
     m_gameRoundShow->setText("Round:"+std::to_string(this->m_currentRound+1));
 }
 
-void Game::showGameRoundResult()
+void Game::showGameRoundResult(bool show)
 {
-    //显示上一局的结果
+    if(show)
+    {
+        //显示上一局的结果
+        if(m_lastWinner==m_userIdOfDialog)
+        {
+            m_gameRoundResultShow->setText("You win!");
+            m_gameRoundResultShow->setFontColor(Qt::yellow);
+        }else if(m_lastWinner==m_userIdOfDialog)
+        {
+            m_gameRoundResultShow->setText("You fail!");
+            m_gameRoundResultShow->setFontColor(Qt::red);
+        }else if(m_lastWinner==NoWinner)
+        {
+            m_gameRoundResultShow->setText("In draw");
+        }
+        m_gameRoundResultShow->update();
+    }
+    else {
+        m_gameRoundResultShow->setText("");
+        m_gameRoundResultShow->update();
+    }
+    return;
+
+}
+
+void Game::showGameResult()
+{
+    m_background->changeImagePath(GameResultShowImagePath);
+    m_background->setZValue(20);
+    for(int i=0; i<m_background->childItems().size(); i++)
+    {
+        m_background->childItems().at(i)->hide();
+    }
+    //显示结果比分
+    std::string result[2];
+    result[OURSIDE]="Our score:";
+    result[ENEMY]="Enemy's score:";
+    for(int i=0; i<2; i++)
+    {
+        m_gameResultShow[i]=new text(GameResultShowPos[i], GameResultShowSize, m_background);
+        m_gameResultShow[i]->setFontColor(Qt::yellow);
+        m_gameResultShow[i]->setFontSize(30);
+
+        for(int j=0; j<3; j++)
+        {
+            result[i]+=" ";
+            result[i]+=(std::to_string(m_player[i]->m_finalStrength[j]));
+        }
+        m_gameResultShow[i]->setText(result[i]);
+    }
 }
 
 QDataStream &operator<<(QDataStream &out, const Game &game)
 {
-    //out << game.m_gameId;
-
     out << game.m_enemyId;//向对方发一个包，包的开头是对方的id
 
     out << *(game.m_player[OURSIDE]) << *(game.m_player[ENEMY]);
 
+    out<<game.winningTimes[OURSIDE]<<game.winningTimes[ENEMY];
+
+    out << game.m_lastWinner;//上传上一局赢的玩家
+
     out << game.m_currentRound;//发送当前回合
 
-    for(int i=0; i<3; i++)
-    {
-        out<<static_cast<int>(game.m_gameRoundStatus[i]);//目前三局的游戏状态
-    }
     out<<static_cast<int>(game.m_gameStatus);
 
     return out;
@@ -546,8 +570,11 @@ QDataStream &operator>>(QDataStream &in, Game &game)
     int destination;
     in >> destination;
 
-    if(game.m_userIdOfDialog==destination)//如果我方就是该包的目标
+    qDebug()<<"trying to read";
+
+    if(game.m_userIdOfDialog==destination)//如果我方就是该包的目标，接受该包
     {
+        game.m_shouldUpdateGame=false;//在我方保存游戏进度前，不再接受游戏数据包
 
         if(!game.m_player[ENEMY] || !game.m_player[OURSIDE])
         {
@@ -555,28 +582,47 @@ QDataStream &operator>>(QDataStream &in, Game &game)
             return in;
         }
 
-        in >> *(game.m_player[ENEMY]) >> *(game.m_player[OURSIDE]);
+        qDebug()<<"read game package";
 
-        in >> game.m_currentRound;
+        in >> *(game.m_player[ENEMY]) >> *(game.m_player[OURSIDE]);//输入玩家信息
 
-        for(int i=0; i<3; i++)
-        {
-            int gameRoundStatus;
-            in>>gameRoundStatus;
-            game.m_gameRoundStatus[i]=static_cast<GameStatus>(gameRoundStatus);
-        }
+        in >> game.winningTimes[ENEMY] >> game.winningTimes[OURSIDE];//输入两方赢的次数
+
+        in >> game.m_lastWinner;//输入上一局赢的玩家
+
+        int round;
+        in >> round;//输入当前回合
+
         int gameStatus;
-        in>>gameStatus;
+        in>>gameStatus;//输入当前游戏状态
         game.m_gameStatus=static_cast<GameStatus>(gameStatus);
 
-        if(game.m_currentRound==0 && game.m_gameRoundStatus[game.m_currentRound]==GameStatus::UNSTARTED)//如果游戏还没有开始
+        if(game.m_gameStatus==GameStatus::OVER)
+        {
+            game.stopGame();
+            return in;
+        }
+
+        if(round>game.m_currentRound)//如果发现传过来的游戏进入了新的回合
+        {
+            qDebug()<<"find the round increase";
+            game.showGameRoundResult(true);//则显示当前局游戏的结果
+            game.m_currentRound=round;//我方也进入新的一轮
+            game.updateRound();//更新回合显示
+            game.enterANewRound();
+            return in;
+        }
+
+        if(game.m_currentRound==0 && game.m_gameStatus==GameStatus::UNSTARTED)//如果游戏还没有开始
         {
             game.startGame();//那么我方开始游戏
         }
         else
         {
+            game.showGameRoundResult(false);
             game.m_player[OURSIDE]->getTurn();//否则轮到我方出牌
         }
+
         return in;
     }//否则丢弃该包
     else

@@ -4,6 +4,7 @@
 #include <QHostAddress>
 #include <QTcpSocket>
 
+#include <QObject>
 #include <QDialog>
 #include <QGraphicsScene>
 #include <QResizeEvent>
@@ -34,11 +35,6 @@ public slots:
     void slotDisconnected();
     void dataReceived();
     void slotSend();
-
-
-
-
-
 
     //----------------游戏相关-------------------
 
@@ -73,18 +69,30 @@ private:
     QGraphicsScene *mainGameScene;//游戏主界面
     GraphicsItem *mainGameBackground;//游戏主界面的背景
 
-
+    int m_gameId;
     int m_myUserId;
+    int m_enemyId;
 
     Game *game1;
 
 
-    GraphicsItem* modifyDeck;//修改卡组的界面
+    Deck* modifyDeck;//修改卡组的界面
 
+    GraphicsItem* initialInterface ;//初始界面
 
+    void enterInitialInterface();//进入初始化界面
+    void exitInitialInterface();//退出初始化界面
 
 protected:
     void resizeEvent(QResizeEvent *event);
+private slots:
+    void on_playGameWith_clicked();
+    void on_acceptGame_clicked();
+    void on_EditDeck1_clicked();
+    void on_EditDeck2_clicked();
+    void on_Exit_clicked();
+    void on_comfirm_clicked();
+    void on_closeInterface(int interface);//退出某个界面
 };
 
 #endif // DIALOG_H

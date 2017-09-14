@@ -131,6 +131,7 @@ void Card::setMoveable(bool moveable)
     if(moveable)
     {
         this->setFlag(ItemIsMovable,true);
+        this->setActive(true);
      }
     else
     {

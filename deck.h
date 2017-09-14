@@ -19,6 +19,7 @@ public:
     //explicit Deck(GraphicsItem *parent = nullptr);
     Deck (int deckId, GraphicsItem *parent=nullptr);
 signals:
+    void closeInterface(int interfaceId);//退出当前界面
 
 public slots:
     void on_cardPressed(Card *card);

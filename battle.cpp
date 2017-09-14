@@ -14,6 +14,8 @@ BattleField::BattleField(const COMBAT_ROW type, GraphicsItem *parent):
     m_type(type)
 {
     this->setFlag(ItemIsFocusable, true);
+    this->setActive(true);
+
     m_climate=CLIMATE::SUNNY;//初始时天气为晴空
     m_showBorder=false;//不显示边界
 
@@ -281,9 +283,11 @@ bool BattleField::removeCard(Card *oldCard)//从战排中删除卡牌
     if(!oldCard)
         return false;
 
+    qDebug()<<"battle trying to remove";
     auto iter=find(m_currentCard.begin(), m_currentCard.end(), oldCard);
     if(iter!=m_currentCard.end()){
         m_currentCard.erase(iter);
+        qDebug()<<"battle remove card successful";
         update();
         return true;
     }else
@@ -321,11 +325,13 @@ void BattleField::clearAll()//清空所有卡牌，同时清除天气效果
 
 void BattleField::mouseDoubleClickEvent(QGraphicsSceneEvent *event)
 {
+    qDebug()<<"battle field mouse double clicked";
     emit battleFeildPressed(this);
 }
 
 void BattleField::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
+    qDebug()<<"battle field mouse pressed";
     emit battleFeildPressed(this);
 }
 

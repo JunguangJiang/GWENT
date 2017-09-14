@@ -21,7 +21,7 @@ public:
     void playGameIn(int userId, GraphicsItem* background);//调用它的用户id是userId，以background为背景开始玩游戏
     void startGame();//开始玩游戏
     void stopGame();//终止游戏
-    void saveGame();//存储游戏进度
+    //void saveGame();//存储游戏进度
     //void continueGame();//继续游戏
 
     void saveGame(const QString gameFile);
@@ -78,18 +78,22 @@ private:
     text* m_turnShow;//显示当前轮到哪位玩家发牌
     text* m_gameRoundShow;//当前是第几局
     text* m_gameRoundResultShow;//上一局谁赢了
+    text* m_gameResultShow[2];//游戏结果的显示
 
     GraphicsItem* m_background;//游戏背景
     void connectCardHoverEvents();//使所有的卡牌接受悬浮信号
 
     void updateTime();//更新界面的元素（显示剩余的时间、显示当前轮到哪位玩家发牌）
     void updateRound();//更新回合
-    void showGameRoundResult();//显示上一局谁赢了
+    void showGameRoundResult(bool show);//显示上一局谁赢了
+    void showGameResult();//显示全局的结果
 
     int m_lastWinner;//记录上一局赢的玩家
 
     bool m_isDispatching;//是否正在调度
     //GraphicsItem* m_redrawBackground;//调度的背景
+
+    bool m_shouldUpdateGame;//此时是否应该更新
 
 private slots:
     void on_buttonPressed();//当按下放弃按钮时响应

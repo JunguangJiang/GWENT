@@ -62,4 +62,7 @@
         <file>res/uiPicture/ExitButton.png</file>
         <file>res/uiPicture/SaveButton.png</file>
     </qresource>
+    <qresource prefix="/">
+        <file>res/uiPicture/GameEnding.png</file>
+    </qresource>
 </RCC>

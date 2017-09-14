@@ -36,6 +36,11 @@ Player::Player(const int userId, QObject *parent) : QObject(parent), m_userId(us
 
     m_timer->start();
     m_timer->moveToThread(m_timerThread);
+
+    for(int i=0; i<3; i++)
+    {
+        m_finalStrength[i]=0;
+    }
 }
 
 Player::~Player()
@@ -331,13 +336,21 @@ void Player::addCardFromHandToBattle(Card *card, COMBAT_ROW combatRow)//从手�
     }
 }
 
+void Player::updateFinalStrength(int currentRound)
+{
+    m_finalStrength[currentRound]=getTotalStrength();
+}
+
 void Player::enterANewRound()//进入新的一个回合
 {
     closeBattle->clearAll();//清除所有卡牌及天气效果
     remoteBattle->clearAll();
     siegeBattle->clearAll();
+    qDebug()<<"clear battle";
 
     m_hasChosenPassed=false;//此时我方没有选择让过
+    updatePassShow();
+
     m_isOnTurn=false;//还暂时不能移动手牌
 }
 
@@ -502,6 +515,7 @@ void Player::updateTotalStrengthShow()//更新总分的显示
 void Player::updatePassShow()//更新玩家是否选择了让过
 {
     handCard->showPass(m_hasChosenPassed);
+
 }
 
 void Player::on_oneSecondGone()//每隔1s响应一次
@@ -600,6 +614,7 @@ QDataStream &operator>>(QDataStream &in, Player &player)
 
     //in >> player.m_leftTime >> player.m_isOnTurn >> player.m_hasChosenPassed;
     in >> player.m_hasChosenPassed;
+    player.updatePassShow();
 
     //将传递过程中的id转化为card指针
     player.closeBattle->m_currentCard.clear();
