@@ -14,7 +14,7 @@ BattleField::BattleField(const COMBAT_ROW type, GraphicsItem *parent):
     m_type(type)
 {
     this->setFlag(ItemIsFocusable, true);
-    this->setActive(true);
+    this->setFlag(ItemIsSelectable);
 
     m_climate=CLIMATE::SUNNY;//初始时天气为晴空
     m_showBorder=false;//不显示边界
@@ -282,6 +282,27 @@ bool BattleField::removeCard(Card *oldCard)//从战排中删除卡牌
 {
     if(!oldCard)
         return false;
+/*
+    for(int i=0; i<m_currentCard.size(); i++)
+    {
+        qDebug()<<"battle already exists"<<QString::fromStdString(m_currentCard.at(i)->getName());
+    }
+
+    qDebug()<<"battle trying to remove";
+    for(int i=0; i<m_currentCard.size(); i++)
+    {
+        if(m_currentCard[i]->getId()==oldCard->getId())
+        {
+            auto iter=m_currentCard.begin()+i;
+            m_currentCard.erase(iter);
+            qDebug()<<"delete"<<QString::fromStdString(oldCard->getName());
+            qDebug()<<"battle now has "<<m_currentCard.size() <<"card";
+            return true;
+        }
+    }
+    update();
+
+    return false;*/
 
     qDebug()<<"battle trying to remove";
     auto iter=find(m_currentCard.begin(), m_currentCard.end(), oldCard);

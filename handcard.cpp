@@ -66,6 +66,7 @@ void HandCard::setLeader(Card *card)
         return;
     }
     m_leader=card;
+    card->setSeen();
     card->setLeader(true);
     card->setStatus(STATUS::HAND);
     card->setMoveable(true);

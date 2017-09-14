@@ -24,7 +24,6 @@ signals:
 public slots:
     void on_cardPressed(Card *card);
     void on_saveButtonPressed();
-    void on_exitButtonPressed();
 
 private:
     int m_deckId;//我的卡组编号
@@ -43,7 +42,6 @@ private:
     text *m_totalCardNumberShow;//显示卡牌总数
 
     Button *m_saveButton;
-    Button *m_exitButton;
 
     void showAllCards(QPainter *painter);
     void countCardNumber();

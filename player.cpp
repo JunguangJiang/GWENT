@@ -338,7 +338,11 @@ void Player::addCardFromHandToBattle(Card *card, COMBAT_ROW combatRow)//从手�
 
 void Player::updateFinalStrength(int currentRound)
 {
+    if(currentRound>=3)
+        return;
+
     m_finalStrength[currentRound]=getTotalStrength();
+    qDebug()<<"the final strength of round"<<currentRound <<" is "<<m_finalStrength[currentRound];
 }
 
 void Player::enterANewRound()//进入新的一个回合
@@ -570,6 +574,11 @@ QDataStream &operator<<(QDataStream &out, const Player &player)
     //out << player.m_leftTime << player.m_isOnTurn << player.m_hasChosenPassed;
     out << player.m_hasChosenPassed;
 
+    for(int i=0; i<3; i++)
+    {
+        out<<player.m_finalStrength[i];
+    }
+
     return out;
 
 }
@@ -615,6 +624,11 @@ QDataStream &operator>>(QDataStream &in, Player &player)
     //in >> player.m_leftTime >> player.m_isOnTurn >> player.m_hasChosenPassed;
     in >> player.m_hasChosenPassed;
     player.updatePassShow();
+
+    for(int i=0; i<3; i++)
+    {
+        in >> player.m_finalStrength[i];
+    }
 
     //将传递过程中的id转化为card指针
     player.closeBattle->m_currentCard.clear();

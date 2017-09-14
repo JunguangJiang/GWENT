@@ -37,7 +37,6 @@ signals:
     void uploadGamePackage();//此时应该上传游戏包了
     
 public slots:
-    void on_cardPressed(Card *card);//对卡牌点击事件作出响应
     void on_cardHover(Card *card);//对卡牌上方有鼠标悬浮事件作出响应
     void on_battleFieldPressed(COMBAT_ROW combatRow);//对战排点击事件作出响应
     void on_oneSecondGone();//计时器每过1s响应一次

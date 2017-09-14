@@ -4,296 +4,14 @@
 #include "game.h"
 #include "battle.h"
 #include <QCursor>
-/*
- CardDatabase::CardDatabase()
- {
- int i=0;
- Game *databaseGame=(Game *)Q_NULLPTR;
- //战排和卡片需要分别按照卡片id的顺序加入，如果不按照顺序加入，记得重新排序
- Card *card=new Card(RACE::MONSTERS,"Dagon",":/img/card/res/cardPicture/Dagon.png",
- "部署：生成“刺骨冰霜”、“蔽日浓雾”或“倾盆大雨”",6,TYPE::GOLD,COMBAT_ROW::LEADER,true);
- card->setIdOfDatabase(i++);
- cards.push_back(card);
- 
- card=new Card(RACE::MONSTERS,"Foglet",":/img/card/res/cardPicture/Foglet.png",
- "每当己方“蔽日浓雾”在敌排生效，便从牌组打出，或复活至己方同排。若场上不再存在“蔽日浓雾”效果，则被摧毁。",
- 2, TYPE::BRONZE, COMBAT_ROW::ANY,true);
- card->setIdOfDatabase(i++);
- cards.push_back(card);
- 
- card=new Card(RACE::MONSTERS, "Ge'els",":/img/card/res/cardPicture/Ge'els.png",
- "部署：从牌组顶端各抽1张金色牌和银色牌。打出1张，将另1张置于牌组顶端。",
- 2,TYPE::GOLD, COMBAT_ROW::ANY, true);
- card->setIdOfDatabase(i++);
- cards.push_back(card);
- 
- card=new Card(RACE::MONSTERS, "Celaeno_Harpy", ":/img/card/res/cardPicture/Celaeno_Harpy .png",
- "部署：在自身左侧生成2个“鹰身女妖蛋”。",
- 3,TYPE::BRONZE,COMBAT_ROW::ANY,true);
- card->setIdOfDatabase(i++);
- cards.push_back(card);
- 
- card=new Card(RACE::MONSTERS, "Woodland_Spirit",":/img/card/res/cardPicture/Woodland Spirit.png",
- "部署：生成3只“暴怒的狼”，并在对方同排降下“蔽日浓雾”。",
- 5,TYPE::GOLD,COMBAT_ROW::ANY,true);
- card->setIdOfDatabase(i++);
- cards.push_back(card);
- 
- card=new Card(RACE::MONSTERS,"Earth_Elemental",":/img/card/res/cardPicture/Earth_Elemental.png",
- "部署：获得护盾。遗愿：在该排末位生成2个“次级土元素”。",
- 6, TYPE::BRONZE, COMBAT_ROW::CLOSE,true);
- card->setIdOfDatabase(i++);
- cards.push_back(card);
- 
- card=new Card(RACE::MONSTERS, "Crone:_Weavess",":/img/card/res/cardPicture/Crone_Weavess.png",
- "部署：从牌组打出“煮婆”和“呢喃婆”。",
- 6,TYPE::SILVER,COMBAT_ROW::SIEGE,true);
- card->setIdOfDatabase(i++);
- cards.push_back(card);
- 
- card=new Card(RACE::MONSTERS, "Crone:_Whispess",":/img/card/res/cardPicture/Crone_Whispess.png",
- "部署：从牌组打出“煮婆”和“织婆”。",
- 6,TYPE::SILVER,COMBAT_ROW::SIEGE,true);
- card->setIdOfDatabase(i++);
- cards.push_back(card);
- 
- card=new Card(RACE::MONSTERS, "Crone:_Brewess",":/img/card/res/cardPicture/Crone_Brewess.png",
- "部署：从牌组打出“呢喃婆”和“织婆”。",
- 8,TYPE::SILVER, COMBAT_ROW::SIEGE, true);
- card->setIdOfDatabase(i++);
- cards.push_back(card);
- 
- card=new Card(RACE::MONSTERS,"Archgriffin",":/img/card/res/cardPicture/Archgriffin.png",
- "部署：移除所在排的天气效果。",
- 7, TYPE::BRONZE, COMBAT_ROW::ANY, true);
- card->setIdOfDatabase(i++);
- cards.push_back(card);
- 
- card=new Card(RACE::MONSTERS, "Caranthir",":/img/card/res/cardPicture/Caranthir.png",
- "部署：将3个敌军单位移至对方同排，并在此排降下“刺骨冰霜”。",
- 9,TYPE::GOLD,COMBAT_ROW::ANY, true);
- card->setIdOfDatabase(i++);
- cards.push_back(card);
- 
- card=new Card(RACE::MONSTERS, "Frightener",":/img/card/res/cardPicture/Frightener.png",
- "部署：从牌组顶端抽1张牌。将所在战场其他排的1个单位移至自身的同一排。",
- 10,TYPE::SILVER,COMBAT_ROW::ANY,false);
- card->setIdOfDatabase(i++);
- cards.push_back(card);
- 
- card=new Card(RACE::MONSTERS, "Unseen_Elder",":/img/card/res/cardPicture/Unseen Elder.png",
- "部署：吞噬3个友军单位，吸收它们的战力为自身的基础战力。",
- 5,TYPE::GOLD,COMBAT_ROW::LEADER,true);
- card->setIdOfDatabase(i++);
- cards.push_back(card);
- 
- card=new Card(RACE::MONSTERS,"Arachas",":/img/card/res/cardPicture/Arachas.png",
- "部署：从牌组打出所有“蟹蜘蛛”。",
- 3,TYPE::BRONZE,COMBAT_ROW::REMOTE,true);
- card->setIdOfDatabase(i++);
- cards.push_back(card);
- 
- card=new Card(RACE::MONSTERS,"Vran_Warrior",":/img/card/res/cardPicture/Vran_Warrior.png",
- "部署：吞噬右侧单位。每2回合，己方回合开始时，吞噬右侧单位。",
- 5,TYPE::BRONZE,COMBAT_ROW::ANY, true);
- card->setIdOfDatabase(i++);
- cards.push_back(card);
- 
- card=new Card(RACE::MONSTERS,"Wild_Hunt_Rider",":/img/card/res/cardPicture/Wild_Hunt_Rider.png",
- "使对方此排的“刺骨冰霜”伤害提高 1 点。",
- 8,TYPE::BRONZE, COMBAT_ROW::ANY, true);
- card->setIdOfDatabase(i++);
- cards.push_back(card);
- 
- card=new Card(RACE::MONSTERS, "Arachas_Behemoth",":/img/card/res/cardPicture/Arachas_Behemoth.png",
- "每当有友军单位吞噬1张牌，便生成1只“蟹蜘蛛”，随后受到1点伤害（无视护甲）。部署：获得2点护甲。",
- 6, TYPE::BRONZE, COMBAT_ROW::SIEGE,true);
- card->setIdOfDatabase(i++);
- cards.push_back(card);
- 
- card=new Card(RACE::NEUTRAL,"First_Light",":/img/card/res/cardPicture/First_Light.png",
- "生成“晴空”或“调遣”。",
- TYPE::BRONZE);
- card->setIdOfDatabase(i++);
- cards.push_back(card);
- 
- card=new Card(RACE::NEUTRAL, "Biting_Frost",":/img/card/res/cardPicture/Biting_Frost.png",
- "在对方单排降下“刺骨冰霜”。刺骨冰霜：每当己方回合开始时，对所在排最弱的单个单位造成2点伤害",
- TYPE::BRONZE);
- card->setIdOfDatabase(i++);
- cards.push_back(card);
- 
- card=new Card(RACE::NEUTRAL,"Impenetrable_Fog",":/img/card/res/cardPicture/Impenetrable_Fog.png",
- "在对方单排降下“蔽日浓雾”。蔽日浓雾：每当己方回合开始时，对所在排最强的单位造成2点伤害。",
- TYPE::BRONZE);
- card->setIdOfDatabase(i++);
- cards.push_back(card);
- 
- card=new Card(RACE::NEUTRAL,"Torrential_Rain",":/img/card/res/cardPicture/Torrential_Rain.png",
- "在对方单排降下“倾盆大雨”。倾盆大雨：每当己方回合开始时，对所在排最多5个最弱的单位造成1点伤害。",
- TYPE::BRONZE);
- card->setIdOfDatabase(i++);
- cards.push_back(card);
- 
- card=new Card(RACE::NEUTRAL, "Lacerate",":/img/card/res/cardPicture/Lacerate.png",
- "对单排所有单位造成3点伤害。",
- TYPE::BRONZE);
- card->setIdOfDatabase(i++);
- cards.push_back(card);
- 
- card=new Card(RACE::NEUTRAL,"Commander's_Horn",":/img/card/res/cardPicture/Commander's_Horn.png",
- "使5个相邻单位获得4点增益。",
- TYPE::SILVER);
- card->setIdOfDatabase(i++);
- cards.push_back(card);
- 
- card=new Card(RACE::NEUTRAL,"Bekker's_Twisted_Mirror",":/img/card/res/cardPicture/Bekker's_Twisted_Mirror.png",
- "将最强和最弱单位的战力互换",
- TYPE::SILVER);
- card->setIdOfDatabase(i++);
- cards.push_back(card);
- 
- card=new Card(RACE::NEUTRAL,"Geralt:_Igni",":/img/card/res/cardPicture/Geralt_Igni.png",
- "部署：若对方同排总战力不低于20，则摧毁其上所有最强的单位。",
- 4,TYPE::GOLD,COMBAT_ROW::ANY,true);
- card->setIdOfDatabase(i++);
- cards.push_back(card);
- 
- card=new Card(RACE::NEUTRAL,"Thunderbolt_Potion",":/img/card/res/cardPicture/Thunderbolt_Potion.png",
- "使 3 个相邻单位获得 2 点护甲和 3 点增益。",
- TYPE::BRONZE);
- card->setIdOfDatabase(i++);
- cards.push_back(card);
- 
- card=new Card(RACE::NEUTRAL,"Roach",":/img/card/res/cardPicture/Roach.png",
- "己方每次从手牌打出金色牌时（领袖牌除外），便将牌组中的“萝卜”在其能力结算之前召唤至随机位置。",
- 4,TYPE::BRONZE,COMBAT_ROW::ANY,true);
- card->setIdOfDatabase(i++);
- cards.push_back(card);
- 
- 
- }*/
 
 CardDatabase::CardDatabase()
-{/*
-  int i=0;
-  Card *cardDagon=new CardDagon();
-  cardDagon->setIdOfDatabase(i++);
-  cards.push_back(cardDagon);
-  
-  Card *cardFoglet=new CardFoglet();
-  cardFoglet->setIdOfDatabase(i++);
-  cards.push_back(cardFoglet);
-  
-  Card *cardGeels=new CardGeels();
-  cardGeels->setIdOfDatabase(i++);
-  cards.push_back(cardGeels);
-  
-  Card *cardCelaenoHarpy=new CardCelaenoHarpy();
-  cardCelaenoHarpy->setIdOfDatabase(i++);
-  cards.push_back(cardCelaenoHarpy);
-  
-  Card *cardWoodlandSpirit=new CardWoodlandSpirit();
-  cardWoodlandSpirit->setIdOfDatabase(i++);
-  cards.push_back(cardWoodlandSpirit);
-  
-  Card *cardEarthElemental=new CardEarthElemental();
-  cardEarthElemental->setIdOfDatabase(i++);
-  cards.push_back(cardEarthElemental);
-  
-  Card *cardCroneWeavess=new CardCroneWeavess();
-  cardCroneWeavess->setIdOfDatabase(i++);
-  cards.push_back(cardCroneWeavess);
-  
-  Card *cardCroneWhispess=new CardCroneWhispess();
-  cardCroneWhispess->setIdOfDatabase(i++);
-  cards.push_back(cardCroneWhispess);
-  
-  Card *cardCroneBrewess=new CardCroneBrewess();
-  cardCroneBrewess->setIdOfDatabase(i++);
-  cards.push_back(cardCroneBrewess);
-  
-  Card *cardArchgriffin=new CardArchgriffin();
-  cardArchgriffin->setIdOfDatabase(i++);
-  cards.push_back(cardArchgriffin);
-  
-  Card *cardCaranthir=new CardCaranthir();
-  cardCaranthir->setIdOfDatabase(i++);
-  cards.push_back(cardCaranthir);
-  
-  Card *cardFrighterner=new CardFrighterner();
-  cardFrighterner->setIdOfDatabase(i++);
-  cards.push_back(cardFrighterner);
-  
-  Card *cardUnseenElder=new CardUnseenElder();
-  cardUnseenElder->setIdOfDatabase(i++);
-  cards.push_back(cardUnseenElder);
-  
-  Card *cardArachas=new CardArachas();
-  cardArachas->setIdOfDatabase(i++);
-  cards.push_back(cardArachas);
-  
-  Card *cardVranWarrior=new CardVranWarrior();
-  cardVranWarrior->setIdOfDatabase(i++);
-  cards.push_back(cardVranWarrior);
-  
-  Card *cardWildHuntRider=new CardWildHuntRider();
-  cardWildHuntRider->setIdOfDatabase(i++);
-  cards.push_back(cardWildHuntRider);
-  
-  Card *cardArachasBehemoth=new CardArachasBehemoth();
-  cardArachasBehemoth->setIdOfDatabase(i++);
-  cards.push_back(cardArachasBehemoth);
-  
-  Card *cardFirstLight=new CardFirstLight();
-  cardFirstLight->setIdOfDatabase(i++);
-  cards.push_back(cardFirstLight);
-  
-  Card *cardBitingFrost=new CardBitingFrost();
-  cardBitingFrost->setIdOfDatabase(i++);
-  cards.push_back(cardBitingFrost);
-  
-  Card *cardImpenetrableFog=new CardImpenetrableFog();
-  cardImpenetrableFog->setIdOfDatabase(i++);
-  cards.push_back(cardImpenetrableFog);
-  
-  Card *cardTorrentialRain=new CardTorrentialRain();
-  cardTorrentialRain->setIdOfDatabase(i++);
-  cards.push_back(cardTorrentialRain);
-  
-  Card *cardLacerate=new CardLacerate();
-  cardLacerate->setIdOfDatabase(i++);
-  cards.push_back(cardLacerate);
-  
-  Card *cardCommandersHorn=new CardCommandersHorn();
-  cardCommandersHorn->setIdOfDatabase(i++);
-  cards.push_back(cardCommandersHorn);
-  
-  Card *cardBekkersTwistedMirror=new CardBekkersTwistedMirror();
-  cardBekkersTwistedMirror->setIdOfDatabase(i++);
-  cards.push_back(cardBekkersTwistedMirror);
-  
-  Card *cardGeraltIgni=new CardGeraltIgni();
-  cardGeraltIgni->setIdOfDatabase(i++);
-  cards.push_back(cardGeraltIgni);
-  
-  Card *cardThunderboltPotion=new CardThunderboltPotion();
-  cardThunderboltPotion->setIdOfDatabase(i++);
-  cards.push_back(cardThunderboltPotion);
-  
-  Card *cardRoach=new CardRoach();
-  cardRoach->setIdOfDatabase(i++);
-  cards.push_back(cardRoach);*/
+{
     m_size=27;
 }
 
 CardDatabase::~CardDatabase()
-{/*
-  for(auto &i : cards)
-  {
-  if(i)
-  delete i;
-  }*/
+{
 }
 
 Card* CardDatabase::getCardWithIdOfDatabase(int idOfDatabase) const
@@ -394,12 +112,20 @@ void CardDerived::on_handToBattleField(COMBAT_ROW combatRow)//从手牌进入战
     this->m_oursizePlayer->loseTurn();//然后我方选手就失去回合了（但是有些卡牌还需要等待用户的输入才能结束回合，通过虚函数的多态机制实现）
 }
 
-void CardDerived::battleFieldToGraveyard()//从战场进入墓地
+void CardDerived::battleFieldToGraveyard()//只能让我方的牌从战场进入墓地
 {
     if(!m_game)
         return;
-    this->m_oursizePlayer->getBattle(this->getActualCombatRow())->removeCard(this);//一般卡牌直接从战场进入墓地即可，如果卡牌有遗愿则需要重载
-    this->m_oursizePlayer->graveyard->addCard(this);
+    //一般卡牌直接从战场进入墓地即可，如果卡牌有遗愿则需要重载
+    if(this->m_oursizePlayer->getBattle(this->getActualCombatRow())->removeCard(this))
+    {
+        this->m_oursizePlayer->graveyard->addCard(this);
+    }
+    else if(this->m_enemyPlayer->getBattle(this->getActualCombatRow())->removeCard(this))
+    {
+        this->m_enemyPlayer->graveyard->addCard(this);
+    }
+
     qDebug()<<QString::fromStdString(this->getName())<<"to battlefield";
 }
 
@@ -437,8 +163,8 @@ void CardDerived::mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event)//鼠标
     }
 
     emit cardPressed(this);
-    
-    qDebug()<<"mouse double clicked outside handcard";
+
+    qDebug()<< QString::fromStdString(this->getName())<< "card double clicked outside handcard";
     
 
     
@@ -1129,19 +855,19 @@ void CardUnseenElder::on_handToBattleField(COMBAT_ROW combatRow)
     BattleField *battle=this->m_oursizePlayer->getBattle(COMBAT_ROW::CLOSE);
     for(int i=0; i<battle->getSize(); i++)
     {
-        connect(battle->getNthCard(i),SIGNAL(cardPressed(Card*)), this, SLOT(swallow(Card*)));
+        connect(battle->getNthCard(i),SIGNAL(cardPressed(Card*)), this, SLOT(swallow(Card*)),Qt::DirectConnection);
     }
     
     battle=this->m_oursizePlayer->getBattle(COMBAT_ROW::REMOTE);
     for(int i=0; i<battle->getSize(); i++)
     {
-        connect(battle->getNthCard(i),SIGNAL(cardPressed(Card*)), this, SLOT(swallow(Card*)));
+        connect(battle->getNthCard(i),SIGNAL(cardPressed(Card*)), this, SLOT(swallow(Card*)),Qt::DirectConnection);
     }
     
     battle=this->m_oursizePlayer->getBattle(COMBAT_ROW::SIEGE);
     for(int i=0; i<battle->getSize(); i++)
     {
-        connect(battle->getNthCard(i),SIGNAL(cardPressed(Card*)), this, SLOT(swallow(Card*)));
+        connect(battle->getNthCard(i),SIGNAL(cardPressed(Card*)), this, SLOT(swallow(Card*)),Qt::DirectConnection);
     }
 }
 

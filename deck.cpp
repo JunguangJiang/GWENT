@@ -216,10 +216,6 @@ void Deck::on_saveButtonPressed()
 
 }
 
-void Deck::on_exitButtonPressed()
-{
-}
-
 
 QDataStream &operator<<(QDataStream &out,const Deck &deck)
 {

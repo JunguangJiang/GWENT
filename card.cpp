@@ -83,6 +83,7 @@ void Card::initialize()//为了使构造函数看上去更加简洁
     m_isSeen=true;
     setFlag(ItemIsMovable,false);
     setFlag(ItemIsFocusable,true);
+    setFlag(ItemIsSelectable, true);
 
     m_strengthShow=new text(UnseenPos, CardStrengthSize,this);
     m_strengthShow->setFontSize(17);
@@ -131,7 +132,6 @@ void Card::setMoveable(bool moveable)
     if(moveable)
     {
         this->setFlag(ItemIsMovable,true);
-        this->setActive(true);
      }
     else
     {
@@ -306,6 +306,9 @@ void Card::backToOriginState()
 void Card::mousePressEvent(QGraphicsSceneMouseEvent *event)//鼠标点击卡牌
 {
     setCursor(Qt::ClosedHandCursor);
+
+    qDebug()<< QString::fromStdString(this->getName())<< "card pressed  outside handcard";
+
     emit cardPressed(this);//发送卡牌被点击的信号
 }
 
@@ -361,7 +364,7 @@ void Card::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWid
 
     //----------------------以下用于游戏界面------------------------------------
 
-    if(m_strengthShow && m_armorShow && m_shieldShow && m_status==STATUS::BATTLE_FIELD)
+    if(m_strengthShow && m_armorShow && m_shieldShow && (m_status==STATUS::BATTLE_FIELD || m_status==STATUS::GRAVEYARD))
     {
         //显示当前的战斗力
         if(m_actualStrength==m_initStrength)
