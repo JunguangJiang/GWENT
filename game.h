@@ -15,14 +15,11 @@ public:
     explicit Game(long long gameId,  int userId1, int userId2,  QObject *parent = nullptr);//一场新的游戏的初始化，需要游戏的编号和两个用户的id
     ~Game();
     void setDeckId(int deckId1, int deckId2);//确定两个玩家的卡组编号
-
     void setDeck(Deck* enemyDeck, Deck* ourDeck);//设置两个玩家的卡组
-    //void setDeckId(int deckId);//只对我方玩家的卡组初始化
     void playGameIn(int userId, GraphicsItem* background);//调用它的用户id是userId，以background为背景开始玩游戏
     void startGame();//开始玩游戏
     void stopGame();//终止游戏
-    //void saveGame();//存储游戏进度
-    //void continueGame();//继续游戏
+
 
     void saveGame(const QString gameFile);
     void updateGame(const QString gameFile);

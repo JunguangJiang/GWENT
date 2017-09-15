@@ -39,7 +39,7 @@ public:
          const std::string description,
          const TYPE initType);//特殊卡的初始化（没有战斗力和站位）
     virtual void on_handToBattleField(COMBAT_ROW combatRow);
-    virtual void battleFieldToGraveyard();
+    virtual void battleFieldToGraveyard(bool isOurside);
     virtual void on_changeStatusByWeather(CLIMATE climate,BattleField* battleField){}//由于某种天气效果，进入战排或离开战排
     void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
     void mouseDoubleClickEvent(QGraphicsSceneMouseEvent *event);
@@ -91,7 +91,7 @@ class CardEarthElemental:public CardDerived
 public:
     CardEarthElemental();
     void on_handToBattleField(COMBAT_ROW);
-    void battleFieldToGraveyard();
+    void battleFieldToGraveyard(bool isOurside);
 };
 
 class CardCroneWeavess:public CardDerived

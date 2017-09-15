@@ -44,10 +44,10 @@
   <widget class="QPushButton" name="playGameWith">
    <property name="geometry">
     <rect>
-     <x>190</x>
-     <y>280</y>
-     <width>113</width>
-     <height>32</height>
+     <x>142</x>
+     <y>221</y>
+     <width>161</width>
+     <height>91</height>
     </rect>
    </property>
    <property name="text">
@@ -57,10 +57,10 @@
   <widget class="QPushButton" name="acceptGame">
    <property name="geometry">
     <rect>
-     <x>190</x>
-     <y>360</y>
-     <width>113</width>
-     <height>32</height>
+     <x>142</x>
+     <y>331</y>
+     <width>161</width>
+     <height>61</height>
     </rect>
    </property>
    <property name="text">
@@ -70,10 +70,10 @@
   <widget class="QPushButton" name="EditDeck1">
    <property name="geometry">
     <rect>
-     <x>400</x>
-     <y>280</y>
-     <width>113</width>
-     <height>32</height>
+     <x>352</x>
+     <y>221</y>
+     <width>161</width>
+     <height>91</height>
     </rect>
    </property>
    <property name="text">
@@ -83,10 +83,10 @@
   <widget class="QPushButton" name="EditDeck2">
    <property name="geometry">
     <rect>
-     <x>400</x>
-     <y>360</y>
-     <width>113</width>
-     <height>32</height>
+     <x>350</x>
+     <y>330</y>
+     <width>161</width>
+     <height>61</height>
     </rect>
    </property>
    <property name="text">
@@ -98,8 +98,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>113</width>
-     <height>32</height>
+     <width>131</width>
+     <height>61</height>
     </rect>
    </property>
    <property name="text">
@@ -109,10 +109,10 @@
   <widget class="QLineEdit" name="inputId">
    <property name="geometry">
     <rect>
-     <x>210</x>
-     <y>150</y>
-     <width>113</width>
-     <height>21</height>
+     <x>152</x>
+     <y>120</y>
+     <width>171</width>
+     <height>51</height>
     </rect>
    </property>
    <property name="text">
@@ -122,10 +122,10 @@
   <widget class="QPushButton" name="comfirm">
    <property name="geometry">
     <rect>
-     <x>400</x>
-     <y>150</y>
-     <width>113</width>
-     <height>32</height>
+     <x>350</x>
+     <y>120</y>
+     <width>141</width>
+     <height>51</height>
     </rect>
    </property>
    <property name="text">

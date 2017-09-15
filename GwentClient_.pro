@@ -3,7 +3,7 @@
 # Project created by QtCreator 2017-09-01T23:11:24
 #
 #-------------------------------------------------
-
+CONFIG += resources_big
 QT       += core gui
 QT += network
 
@@ -36,7 +36,6 @@ SOURCES += \
     card.cpp \
     player.cpp \
     carddatabase.cpp \
-    server.cpp \
     handcard.cpp \
     text.cpp \
     graveyard.cpp \
@@ -55,7 +54,6 @@ HEADERS += \
     player.h \
     parameter.h \
     carddatabase.h \
-    server.h \
     handcard.h \
     text.h \
     graveyard.h \

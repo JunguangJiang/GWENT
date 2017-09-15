@@ -10,7 +10,8 @@ Graveyard::Graveyard(int standPoint, GraphicsItem *background):
     m_sizeShow->setFontSize(16);
     m_sizeShow->setBackgroundColor(Qt::black);
     m_sizeShow->setFontColor(Qt::gray);
-    m_cardIds.clear();
+    //m_cardIds.clear();
+    m_transformData.clear();
     m_cards.clear();
 }
 
@@ -79,7 +80,7 @@ QDataStream &operator<<(QDataStream &out,const Graveyard &graveyard)
     {
         if(graveyard.m_cards[i])
         {
-            out<<(graveyard.m_cards[i]->getId());
+            out<<(graveyard.m_cards[i]->getId()) << graveyard.m_cards[i]->getLoyalty();
         }
     }
 
@@ -91,8 +92,8 @@ QDataStream &operator>>(QDataStream &in , Graveyard &graveyard)
     int size;
     in>>size;
 
-    graveyard.m_cardIds.clear();
-
+    //graveyard.m_cardIds.clear();
+    graveyard.m_transformData.clear();
 
     qDebug()<<" in graveyard size"<<size;
 
@@ -100,19 +101,15 @@ QDataStream &operator>>(QDataStream &in , Graveyard &graveyard)
     {
         int cardId;
         in>>cardId;
-        graveyard.m_cardIds.push_back(cardId);
+        bool loyalty;
+        in>>loyalty;
+        struct TransformData data={cardId, loyalty};
+        graveyard.m_transformData.push_back(data);
+        //graveyard.m_cardIds.push_back(cardId);
     }
 
     return in;
 }
-
-
-
-
-
-
-
-
 
 
 

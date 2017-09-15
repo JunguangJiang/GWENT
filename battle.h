@@ -11,11 +11,6 @@ using namespace gwent;
 
 class Player;
 
-struct TransformData//传输的数据结构
-{
-    int id;//在卡组中的id
-    bool loyalty;//忠诚度
-};
 
 //-----------------------------战排类------------------------------------
 class BattleField:public QObject, public GraphicsItem
@@ -55,7 +50,7 @@ public:
 
     //bool addCard(Card *newCard, int rank);//在第rank位置之前加入新的卡牌，插入后变成第rank张卡牌
     //bool removeCard(int rank);              //删去第rank位置的卡牌
-    void clearAll();                       //清空所有卡牌，同时清除天气效果
+    void clearAll(bool isOurside);                       //清空所有卡牌，同时清除天气效果
 
     //------------------------战排的流化----------------------------------
     friend QDataStream &operator<<(QDataStream &out,const BattleField &battleFeild);

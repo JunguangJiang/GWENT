@@ -50,7 +50,7 @@ public:
         //4.发牌并且发动完卡牌效果
 
     void addCardFromHandToBattle(Card* card, COMBAT_ROW combatRow); //从手牌中发出一张牌到战排上
-    void enterANewRound();  //进入新的一个回合
+    void enterANewRound(bool isOurside);  //进入新的一个回合
 
     void choosePassed();    //选择让过
     void loseOneHandcardByRandom();//随机丢弃一张手牌

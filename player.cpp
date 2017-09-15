@@ -345,11 +345,11 @@ void Player::updateFinalStrength(int currentRound)
     qDebug()<<"the final strength of round"<<currentRound <<" is "<<m_finalStrength[currentRound];
 }
 
-void Player::enterANewRound()//进入新的一个回合
+void Player::enterANewRound(bool isOurside)//进入新的一个回合
 {
-    closeBattle->clearAll();//清除所有卡牌及天气效果
-    remoteBattle->clearAll();
-    siegeBattle->clearAll();
+    closeBattle->clearAll(isOurside);//清除所有卡牌及天气效果
+    remoteBattle->clearAll(isOurside);
+    siegeBattle->clearAll(isOurside);
     qDebug()<<"clear battle";
 
     m_hasChosenPassed=false;//此时我方没有选择让过
@@ -591,6 +591,8 @@ QDataStream &operator>>(QDataStream &in, Player &player)
     for(int i=0; i<player.m_card.size(); i++)
     {
         in>>*(player.m_card[i]);
+        player.m_card[i]->setLeftTop(1,1);
+        player.m_card[i]->update();
     }
 
     if(size > player.m_card.size())//如果传输过来的卡组数量增加，说明出现了衍生物，那么对于该玩家的卡组后面继续增加卡牌
@@ -602,7 +604,7 @@ QDataStream &operator>>(QDataStream &in, Player &player)
             in>>card;
 
             Card *newCard=cardDatabase.getCardWithIdOfDatabase(card.getIdOfDatabase());
-            player.createCard(newCard);
+            player.m_game->getPlayer(ENEMY)->createCard(newCard);
             qDebug()<<"create derivative";
 
             newCard->setActualCombatRow(card.getActualCombatRow());
@@ -707,12 +709,31 @@ QDataStream &operator>>(QDataStream &in, Player &player)
         int id=player.library->m_cardIds[i];
         player.library->addCard(player.m_card[id]);
     }
-
+/*
     player.graveyard->clear();
     for(int i=0; i<player.graveyard->m_cardIds.size(); i++)
     {
         int id=player.graveyard->m_cardIds[i];
         player.graveyard->addCard(player.m_card[id]);
+    }
+*/
+    player.graveyard->clear();
+    for(int i=0; i<player.graveyard->m_transformData.size(); i++)
+    {
+        struct TransformData data=player.graveyard->m_transformData[i];
+        int id=data.id;
+        player.graveyard->addCard(player.m_card[id]);
+        /*if(data.loyalty)
+        {
+            player.graveyard->addCard(player.m_card[id]);
+        }
+        else
+        {
+            if(player.m_game)
+            {
+                player.m_game->getPlayer(ENEMY)->graveyard->addCard(player.m_game->getPlayer(ENEMY)->m_card[id]);
+            }
+        }*/
     }
 
     return in;

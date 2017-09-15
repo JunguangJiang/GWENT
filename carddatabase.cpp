@@ -112,17 +112,19 @@ void CardDerived::on_handToBattleField(COMBAT_ROW combatRow)//从手牌进入战
     this->m_oursizePlayer->loseTurn();//然后我方选手就失去回合了（但是有些卡牌还需要等待用户的输入才能结束回合，通过虚函数的多态机制实现）
 }
 
-void CardDerived::battleFieldToGraveyard()//只能让我方的牌从战场进入墓地
+void CardDerived::battleFieldToGraveyard(bool isOurside)//只能让我方的牌从战场进入墓地
 {
     if(!m_game)
         return;
     //一般卡牌直接从战场进入墓地即可，如果卡牌有遗愿则需要重载
-    if(this->m_oursizePlayer->getBattle(this->getActualCombatRow())->removeCard(this))
+    if(isOurside)
     {
+        this->m_oursizePlayer->getBattle(this->getActualCombatRow())->removeCard(this);
         this->m_oursizePlayer->graveyard->addCard(this);
     }
-    else if(this->m_enemyPlayer->getBattle(this->getActualCombatRow())->removeCard(this))
+    else
     {
+        this->m_enemyPlayer->getBattle(this->getActualCombatRow())->removeCard(this);
         this->m_enemyPlayer->graveyard->addCard(this);
     }
 
@@ -284,7 +286,7 @@ void CardDagon::on_handToBattleField(COMBAT_ROW combatRow)
     this->m_oursizePlayer->addCardFromHandToBattle(newCard, COMBAT_ROW::NO_COMBATROW);
     
     emit handToBattleField(combatRow,this);//发送发动卡牌的信号
-    this->m_oursizePlayer->loseTurn();//然后玩家失去回合
+    //this->m_oursizePlayer->loseTurn();//然后玩家失去回合
 }
 
 //------------------------小雾妖-------------------------------------------------------------
@@ -461,21 +463,40 @@ void CardEarthElemental::on_handToBattleField(COMBAT_ROW combatRow)
     this->m_oursizePlayer->loseTurn();
 }
 
-void CardEarthElemental::battleFieldToGraveyard()
+void CardEarthElemental::battleFieldToGraveyard(bool isOurside)
 {
     if(!m_game)
         return;
     
-    this->m_oursizePlayer->getBattle(this->getActualCombatRow())->removeCard(this);
-    this->m_oursizePlayer->graveyard->addCard(this);
-    
-    //在该排末尾生成2只次级土元素
-    Card* cardLesserEarthElemental[2];
-    for(int i=0; i<2; i++)
+
+    if(isOurside)
     {
-        cardLesserEarthElemental[i]=new CardLesserEarthElemental();
-        this->m_oursizePlayer->createCard(cardLesserEarthElemental[i]);
-        this->m_oursizePlayer->getBattle(this->getActualCombatRow())->addCard(cardLesserEarthElemental[i]);
+        this->m_oursizePlayer->getBattle(this->getActualCombatRow())->removeCard(this);
+        this->m_oursizePlayer->graveyard->addCard(this);
+
+
+        //在该排末尾生成2只次级土元素
+        Card* cardLesserEarthElemental[2];
+        for(int i=0; i<2; i++)
+        {
+            cardLesserEarthElemental[i]=new CardLesserEarthElemental();
+            this->m_oursizePlayer->createCard(cardLesserEarthElemental[i]);
+            this->m_oursizePlayer->getBattle(this->getActualCombatRow())->addCard(cardLesserEarthElemental[i]);
+        }
+    }else
+    {
+        this->m_enemyPlayer->getBattle(this->getActualCombatRow())->removeCard(this);
+        this->m_enemyPlayer->graveyard->addCard(this);
+
+
+        //在该排末尾生成2只次级土元素
+        Card* cardLesserEarthElemental[2];
+        for(int i=0; i<2; i++)
+        {
+            cardLesserEarthElemental[i]=new CardLesserEarthElemental();
+            this->m_enemyPlayer->createCard(cardLesserEarthElemental[i]);
+            this->m_enemyPlayer->getBattle(this->getActualCombatRow())->addCard(cardLesserEarthElemental[i]);
+        }
     }
 }
 
@@ -620,19 +641,19 @@ void CardCaranthir::on_handToBattleField(COMBAT_ROW combatRow)
     BattleField *battle=this->m_enemyPlayer->getBattle(COMBAT_ROW::CLOSE);
     for(int i=0; i<battle->getSize(); i++)
     {
-        connect(battle->getNthCard(i),SIGNAL(cardPressed(Card*)), this, SLOT(on_CardPressed(Card*)));
+        connect(battle->getNthCard(i),SIGNAL(cardPressed(Card*)), this, SLOT(on_CardPressed(Card*)),Qt::DirectConnection);
     }
     
     battle=this->m_enemyPlayer->getBattle(COMBAT_ROW::REMOTE);
     for(int i=0; i<battle->getSize(); i++)
     {
-        connect(battle->getNthCard(i),SIGNAL(cardPressed(Card*)), this, SLOT(on_CardPressed(Card*)));
+        connect(battle->getNthCard(i),SIGNAL(cardPressed(Card*)), this, SLOT(on_CardPressed(Card*)),Qt::DirectConnection);
     }
     
     battle=this->m_enemyPlayer->getBattle(COMBAT_ROW::SIEGE);
     for(int i=0; i<battle->getSize(); i++)
     {
-        connect(battle->getNthCard(i),SIGNAL(cardPressed(Card*)), this, SLOT(on_CardPressed(Card*)));
+        connect(battle->getNthCard(i),SIGNAL(cardPressed(Card*)), this, SLOT(on_CardPressed(Card*)),Qt::DirectConnection);
     }
 }
 
@@ -886,7 +907,7 @@ void CardUnseenElder::swallow(Card *card)
     
     card->beforeBeSwallowed();//card被吃之前发动
     m_actualStrength+=card->getActualStrength();//吸收友军的力量
-    card->battleFieldToGraveyard();//将友军置入墓地
+    card->battleFieldToGraveyard(true);//将友军置入墓地
     emit swallowFriend();//发出吃了友军的信号
     
     if(foodCount==3)//吃满3个食物则解除连接
@@ -1011,7 +1032,7 @@ void CardVranWarrior::swallow(Card *food)
     
     food->beforeBeSwallowed();//food被吃之前发动
     m_actualStrength+=food->getActualStrength();
-    food->battleFieldToGraveyard();
+    food->battleFieldToGraveyard(true);
     emit swallowFriend();
 }
 
@@ -1616,12 +1637,13 @@ void CardGeraltIgni::on_handToBattleField(COMBAT_ROW combatRow)
                 Card *card=battle->getNthCard(i);
                 if(card && card->getActualStrength()==strongestStrength && !card->isGoldenCard())
                 {
-                    this->battleFieldToGraveyard();
+                    this->battleFieldToGraveyard(false);
                 }
             }
         }
-        
     }
+    this->m_oursizePlayer->loseTurn();
+
 }
 
 //------------------------雷霆药水-------------------------------------------------------------
@@ -1795,6 +1817,9 @@ void CardRoach::on_handToBattleField(COMBAT_ROW combatRow)//响应的其实是�
                 break;
         }
         this->m_oursizePlayer->getBattle(combatRow)->addCard(this);
+    }else
+    {
+        this->m_oursizePlayer->loseTurn();
     }
 }
 

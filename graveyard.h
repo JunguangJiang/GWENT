@@ -6,6 +6,8 @@
 #include "card.h"
 #include "text.h"
 #include "graphicsitem.h"
+
+
 class Graveyard : public QObject,public GraphicsItem
 {
     Q_OBJECT
@@ -18,7 +20,8 @@ public:
     void clear(){m_cards.clear();}//只是清空m_cards
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 
-    std::vector<int> m_cardIds;
+    //std::vector<int> m_cardIds;
+    std::vector<TransformData> m_transformData;//当前墓地的卡牌在卡组中的编号
 
     friend QDataStream &operator<<(QDataStream &out,const Graveyard &graveyard);
     friend QDataStream &operator>>(QDataStream &in , Graveyard &graveyard);

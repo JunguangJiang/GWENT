@@ -73,8 +73,7 @@ private:
     int m_myUserId;
     int m_enemyId;
 
-    Game *game1;
-
+    Game *game1;//创建一个游戏
 
     Deck* modifyDeck;//修改卡组的界面
 

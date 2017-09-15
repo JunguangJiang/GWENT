@@ -17,7 +17,7 @@ Deck::Deck(int deckId, GraphicsItem *parent) :GraphicsItem(0,0,1,1,ModifyDeckIma
     }
     m_totalCardNumberShow=new text(DeckTotalNumberPos, DeckTitleSize, this);
     m_totalCardNumberShow->setFontColor(Qt::white);
-    m_totalCardNumberShow->setFontSize(23);
+    m_totalCardNumberShow->setFontSize(19);
     m_totalCardNumberShow->setCenter();
     m_totalCardNumber=0;
 

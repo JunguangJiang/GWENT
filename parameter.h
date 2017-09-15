@@ -4,7 +4,7 @@
 #include <QPoint>
 #include <QSize>
 //定义了一些游戏界面中用到的参数
-
+#include <QDir>
 namespace gwent {
 //-------------------界面编号--------------------------------
 const int InitialInterface=0;//初始化界面
@@ -12,8 +12,12 @@ const int MainGameInterface=1;//游戏界面
 const int ModifyDeckInterface=2;//编辑卡组界面
 
 //------------------------存储格式-----------------------------
-const QString GameFilePrefix=QString("/Users/jiangjunguang/Desktop/GwentClient2/GWENT2/Game");//目前不是前缀
-const QString DeckFilePrefix=QString("/Users/jiangjunguang/Desktop/GwentClient2/GWENT2/Deck");
+const QString GameFilePrefix=QString("Game");
+const QString DeckFilePrefix=QString("Deck");
+//const QString GameFilePrefix=QDir::currentPath()+QString("/Game");
+//const QString DeckFilePrefix=QDir::currentPath()+QString("/Deck");
+//const QString GameFilePrefix=QString("/Users/jiangjunguang/Desktop/GwentClient2/GWENT2/Game");
+//const QString DeckFilePrefix=QString("/Users/jiangjunguang/Desktop/GwentClient2/GWENT2/Deck");
 //--------------------------主游戏---------------------------------
 //---调试用---
 const QString GameFileName=QString("Game1.dat");

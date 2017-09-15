@@ -268,7 +268,7 @@ void Card::getHarm(const int harm)//获得伤害
 
     if(isDead())//如果死亡，则从战场进入墓地
     {
-        this->battleFieldToGraveyard();
+        this->battleFieldToGraveyard(false);
     }
     update();
 }

@@ -275,7 +275,10 @@ bool BattleField::addCard(Card *newCard)//向战排中加入新的卡牌
         return true;
     }
     else
+    {
+        update();
         return false;
+    }
 }
 
 bool BattleField::removeCard(Card *oldCard)//从战排中删除卡牌
@@ -302,13 +305,13 @@ bool BattleField::removeCard(Card *oldCard)//从战排中删除卡牌
     }
     update();
 
-    return false;*/
-
-    qDebug()<<"battle trying to remove";
+    return false;
+*/
+    qDebug()<<"battle trying to remove "<<QString::fromStdString(oldCard->getName());
     auto iter=find(m_currentCard.begin(), m_currentCard.end(), oldCard);
     if(iter!=m_currentCard.end()){
         m_currentCard.erase(iter);
-        qDebug()<<"battle remove card successful";
+        qDebug()<<"delete"<<QString::fromStdString(oldCard->getName())<<"successful";
         update();
         return true;
     }else
@@ -335,13 +338,19 @@ void BattleField::insert(Card *oldCard, Card *newCard)
     newCard->setStatus(STATUS::BATTLE_FIELD);
 }
 
-void BattleField::clearAll()//清空所有卡牌，同时清除天气效果
+void BattleField::clearAll(bool isOurside)//清空所有卡牌，同时清除天气效果
 {
+    qDebug()<<"clear battle , the size of battle is"<<m_currentCard.size();
     for(auto &i : m_currentCard)
     {
-        i->battleFieldToGraveyard();//将所有卡牌放入墓地
+        qDebug()<<"clearing card "<<QString::fromStdString(i->getName())<<" the id is"<<QString::number(i->getId());
+        i->setLeftTop(1,1);
+        i->update();
+        i->battleFieldToGraveyard(isOurside);//将所有卡牌放入墓地
     }
+    m_currentCard.clear();
     this->changeClimate(CLIMATE::SUNNY);//同时清除天气效果
+    this->update();
 }
 
 void BattleField::mouseDoubleClickEvent(QGraphicsSceneEvent *event)

@@ -350,7 +350,7 @@ void Game::on_playerLoseTurn()//当当前选手结束发牌时
         qDebug()<<"current round"<<QString::number(m_currentRound-1)<<"is over";
         updateRound();
 
-        m_player[OURSIDE]->enterANewRound();//进入新的一轮,清空战排上的卡牌
+        //m_player[OURSIDE]->enterANewRound(true);//进入新的一轮,清空战排上的卡牌
 
         bool gameOver=judgeOfGame();//判断整场游戏是否结束
         if(gameOver)
@@ -368,10 +368,22 @@ void Game::enterANewRound()//进入新的一回合
 {
     qDebug()<<"enter a new round";
 
-    //qDebug()<<"my siegebattle size "<<m_player[OURSIDE]->siegeBattle->getSize();
-    //qDebug()<<"enemy siegebattle size"<<m_player[ENEMY]->siegeBattle->getSize();
-    m_player[OURSIDE]->enterANewRound();//进入新的一轮,清空战排上的卡牌
-    //m_player[ENEMY]->enterANewRound();
+    int count;//需要加牌的张数
+    if(m_currentRound==1)//进入第二回合
+    {
+        count=2;
+    }else if(m_currentRound==2)//进入第三回合
+    {
+        count=1;
+    }
+    for(int i=0; i<count; i++)
+    {
+        m_player[OURSIDE]->drawACardFromLibrary();
+        m_player[ENEMY]->drawACardFromLibrary();
+    }
+
+    m_player[OURSIDE]->enterANewRound(true);//进入新的一轮,清空战排上的卡牌
+    m_player[ENEMY]->enterANewRound(false);
 
     if(m_lastWinner==m_userIdOfDialog)//上一局赢的玩家先开始发牌
     {

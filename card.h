@@ -13,6 +13,14 @@ class Player;
 class BattleField;
 class HandCard;
 class Game;
+
+struct TransformData//传输的数据结构
+{
+    int id;//在卡组中的id
+    bool loyalty;//忠诚度
+};
+
+
 //----------------------------卡牌类-----------------------------
 
 
@@ -151,7 +159,7 @@ public:
     void getArmor(const int armor);//获得护甲
     void setStrength(const int strength);//改变战力
     virtual void showSpecialCard(){}//展现特殊卡
-    virtual void battleFieldToGraveyard(){}//从战场进入墓地时响应
+    virtual void battleFieldToGraveyard(bool isOurside){}//从战场进入墓地时响应
     void backToOriginState();//回到初始状态，进入墓地时调用
     virtual void beforeBeSwallowed(){}//在被吞噬前触发，因为鹰身女妖蛋可以有吞噬加成
 
