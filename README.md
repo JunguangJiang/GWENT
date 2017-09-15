@@ -49,18 +49,18 @@ Card、BattleField、HandCard、Library都继承了图形类GraphicsItem，以�
 点击Leader时，卡牌上会有显示，并且只能点选一个Leader。
 只有当卡牌构成满足规则时，按Save按钮才能保存且回到初始界面。
 按退出键也可以回到初始界面。
-![image](github.com/JunguangJiang/GWENT/blob/master/res/readmePicture/ModifyCard.png)
+![image](https://github.com/JunguangJiang/GWENT/blob/master/res/readmePicture/ModifyCard.png)
 
 ### 主游戏界面
 首先是调度环节，屏幕上显示着Dispatching，双击卡牌即可调度该卡。
 当调度到3张卡，或者调度时间到达30s或者用户点击左方的Pass按钮，即可结束调度。
-![image](github.com/JunguangJiang/GWENT/blob/master/res/readmePicture/Game.png)
+![image](https://github.com/JunguangJiang/GWENT/blob/master/res/readmePicture/Game.png)
 进入正式的游戏后，Pass按钮下方会显示当前出牌玩家，如果是己方出牌，会显示剩余的时间。
 
 出牌的方式有两种，
 对于任意站位的牌，需要将其拖动到相应的战排，同时战排的边框会变亮；
 对于确定站位的牌或者没有站位的特殊牌，只需要鼠标双击即可。
-![image](github.com/JunguangJiang/GWENT/blob/master/res/readmePicture/Game2.png)
+![image](https://github.com/JunguangJiang/GWENT/blob/master/res/readmePicture/Game2.png)
 当发动的卡牌具有特殊效果，需要点击其他卡牌或者战排时，会显示蓝色的目标指示线。
 
 战排上会更新当前的总战斗力。
@@ -71,4 +71,4 @@ Card、BattleField、HandCard、Library都继承了图形类GraphicsItem，以�
 当一方选择让过后，会显示其让过信息。
 
 ### 游戏结束后显示比分
-![image](github.com/JunguangJiang/GWENT/blob/master/res/readmePicture/End.png)
+![image](https://github.com/JunguangJiang/GWENT/blob/master/res/readmePicture/End.png)
